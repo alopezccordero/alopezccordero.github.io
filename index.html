@@ -230,7 +230,7 @@ footer { background:#111827; color:#9aa6b5; }
           <h1>Alejandro<br /><span>Lopez</span></h1>
           <p class="hero-text">
             Computer Science student interested in the subjects of reinforcement learning,
-            deep learning, simulation and software engineering.
+            deep learning and software engineering.
           </p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#projects">View my work</a>
@@ -257,7 +257,7 @@ footer { background:#111827; color:#9aa6b5; }
             <p>Current focus</p>
             <h2>Solve real-life problems at the intersection of Artificial Intelligence and Software Engineering.</h2>
             <div class="tags">
-              <span>PPO</span><span>YOLO</span><span>AMP</span><span>MuJoCo</span><span>PyTorch</span><span>Stable-Baselines3</span><span>HPC</span>
+              <span>PPO</span><span>YOLO</span><span>AMP</span><span>MuJoCo</span><span>PyTorch</span><span>Stable-Baselines3</span><span>HPC</span><span>Django</span><span>Agile</span><span>Test-Driven Development</span>
             </div>
           </div>
         </aside>
@@ -272,14 +272,14 @@ footer { background:#111827; color:#9aa6b5; }
         </div>
         <div class="about-copy reveal">
           <p class="lead">
-            Senior student in the Computer Science Bachelor of Science program at UTRGV
-            and developing a strong foundation in software engineering, machine learning,
-            reinforcement learning and deep learning.
+            Senior student in the Computer Science program at UTRGV
+            developing a strong foundation in software engineering, machine learning,
+            and reinforcement learning.
           </p>
           <p>
             My interests include deep reinforcement learning, physics-based character control,
             simulation, AI agents, computer vision and the architecture of systems following 
-            software engineering methodologies. I enjoy architecting and implementing models for 
+            agile methodologies and Test-Driven Development. I enjoy architecting and implementing models for 
             real-life use by comparing results and documenting reproducible experiments. My technical
             work is also based on the usage of GPU-accelerated training workflows on the university HPC.
           </p>
@@ -300,7 +300,7 @@ footer { background:#111827; color:#9aa6b5; }
         <div class="section-heading row-heading reveal">
           <div>
             <p class="eyebrow">02 / Selected work</p>
-            <h2>Current projects.</h2>
+            <h2>Projects.</h2>
           </div>
           <a class="text-link" href="https://huggingface.co/Alopezcordero" target="_blank" rel="noreferrer">See all models ↗</a>
         </div>
@@ -310,10 +310,29 @@ footer { background:#111827; color:#9aa6b5; }
             <p class="project-label">Reinforcement Learning · Character Control</p>
             <h3>Adversarial Motion Priors for Humanoid Locomotion</h3>
             <p>Extended Stable-Baselines3 PPO with a custom Adversarial Motion Priors implementation, including a discriminator neural network, AMP reward integration, and a motion-retargeting pipeline. I processed AMASS motion-capture data and retargeted it to the MuJoCo humanoid skeleton to create expert demonstrations, then trained the policy for more than 50 million environment interactions on GPU clusters.</p>
+            <ul>
+            <li>Eval (10 episodes, deterministic): 971.74 ± 13.51 episode reward.</li>
+            </ul>
             <div class="tags"><span>PyTorch</span><span>Stable-Baselines3</span><span>PPO</span><span>AMP</span><span>Discriminator Network</span><span>MuJoCo</span><span>AMASS</span><span>SLURM</span></div>
             <a class="text-link" href="https://huggingface.co/Alopezcordero/AMP-HumanoidDirection-V0" target="_blank" rel="noreferrer">View repository ↗</a>
           </article>
+          <article class="project-card reveal">
+            <p class="project-label">Deep Learning · Computer vision AI</p>
+            <h3>YOLO-GunRecognizer</h3>
+            <p>Extended Stable-Baselines3 PPO with a custom Adversarial Motion Priors implementation, including a discriminator neural network, 
+              AMP reward integration, and a motion-retargeting pipeline. I processed AMASS motion-capture data and retargeted it to the MuJoCo humanoid 
+              skeleton to create expert demonstrations, then trained the policy for more than 50 million environment interactions on GPU clusters.</p>
 
+            <p>
+              YOLO model for live gun-detection. Trained and compare different YOLO architectures on diverse roboflow datasets focused on gun detection.
+              Submitted several experiments (200 epochs) using strategies such as downsapmling and hyperparameter tunning for recall and precision imporvement.
+            </p>
+            <ul>
+            <li>Eval on UGR Benchmark: Pending.</li>
+            </ul>
+            <div class="tags"><span>Deep Learning</span><span>YOLO</span><span>Pytorch</span><span>Roboflow</span><span>SLURM</span></div>
+            <a class="text-link" href="https://github.com/alopezccordero/YOLO-GunRecognizer-v0" target="_blank" rel="noreferrer">View repository ↗</a>
+          </article>
           <article class="project-card reveal">
             <p class="project-label">Machine Learning · Model Selection</p>
             <h3>ApisTox: Honeybee Toxicity Classification</h3>
@@ -322,6 +341,7 @@ footer { background:#111827; color:#9aa6b5; }
               <li>Compared KNN, Logistic Regression, and Neural Network classifiers.</li>
               <li>Searched combinations of input columns to find the best-performing feature subset.</li>
               <li>Tuned model hyperparameters and compared results using classification metrics.</li>
+              <li>Neural Network      : best accuracy: 0.8922 - std: 0.0280 (Best metric)</li>
             </ul>
             <a class="text-link" href="https://github.com/alopezccordero/CSCI3329-HW3" target="_blank" rel="noreferrer">View repository ↗</a>
           </article>
@@ -331,7 +351,8 @@ footer { background:#111827; color:#9aa6b5; }
             <h3>Dental Clinic Records Platform</h3>
             <p>Designed and developed a full-stack platform that centralizes dental patient records, treatment history, appointments, and clinical documentation. Built secure workflows for managing odontograms and patient images through authenticated cloud storage, along with appointment notifications and record updates, using a modular Django backend designed for real clinic operations. Development followed <strong>Agile methodologies</strong>, <strong>Test-Driven Development (TDD)</strong>, and a <strong>CI/CD pipeline</strong> to ensure reliable, maintainable, and continuously deployable software.</p>
             <div class="tags"><span>Django</span><span>Python</span><span>Cloudinary</span><span>PostgreSQL</span></div>
-            <span class="text-link muted">Private project</span>
+            <a class="text-link" href="https://www.dental-cordero.com/" target="_blank" rel="noreferrer">View software ↗</a>
+
           </article>
 
           <article class="project-card reveal">
@@ -346,6 +367,9 @@ footer { background:#111827; color:#9aa6b5; }
             <p class="project-label">Deep RL · Computer Vision</p>
             <h3>VizDoom Health Gathering</h3>
             <p>A PPO agent trained in a first-person visual environment to navigate, gather health, and survive using image observations.</p>
+            <ul>
+              <li>mean_reward on doom_health_gathering_supreme: 13.01 +/- 6.15</li>
+            </ul>
             <div class="tags"><span>PPO</span><span>VizDoom</span><span>CNN</span><span>PyTorch</span></div>
             <a class="text-link" href="https://huggingface.co/Alopezcordero/rl_course_vizdoom_health_gathering_supreme" target="_blank" rel="noreferrer">View model ↗</a>
           </article>
@@ -353,7 +377,11 @@ footer { background:#111827; color:#9aa6b5; }
           <article class="project-card reveal">
             <p class="project-label">Multi-Agent RL</p>
             <h3>SoccerTwos POCA</h3>
-            <p>A cooperative multi-agent soccer policy trained with Unity ML-Agents and POCA, exploring coordination and competitive behavior.</p>
+            <p>A cooperative multi-agent soccer policy trained with Unity ML-Agents and POCA, exploring coordination and competitive behavior.
+            </p>
+            <ul>
+              <li>Metrics: 50M timesteps</li>
+            </ul>
             <div class="tags"><span>Unity</span><span>ML-Agents</span><span>POCA</span><span>Self-Play</span></div>
             <a class="text-link" href="https://huggingface.co/Alopezcordero/poca-SoccerTwos" target="_blank" rel="noreferrer">View model ↗</a>
           </article>
@@ -424,8 +452,9 @@ footer { background:#111827; color:#9aa6b5; }
             <div class="detail-block reveal">
               <h3>Awards</h3>
               <ul>
-                <li>UTRGV Transfer Scholarship (2025–2026)</li>
-                <li>Phi Theta Kappa Honor Society</li>
+                <li>G.R. and Lidia Ranganath Endowed Scholarship For Engineering and Computer Science (2026-2027)</li>
+                <li>Phi Theta Kappa Honor Society (2025-2027)</li>
+                <li>UTRGV Transfer Scholarship (2025–2027)</li>
                 <li>TSC Foundation Scholarship (2024–2025)</li>
               </ul>
             </div>
@@ -434,7 +463,7 @@ footer { background:#111827; color:#9aa6b5; }
               <ul>
                 <li>Python, C++, HTML, CSS, JavaScript, SQL</li>
                 <li>PyTorch, Gymnasium, Stable-Baselines3, MuJoCo</li>
-                <li>Django, Git, Linux, Bash, SSH, Conda</li>
+                <li>Django, PostgreSQL, Git, Linux, Bash, SSH, Conda</li>
                 <li>SLURM, CUDA, TensorBoard, HPC cluster workflows</li>
               </ul>
             </div>
@@ -464,7 +493,6 @@ footer { background:#111827; color:#9aa6b5; }
         <p>I am interested in AI, machine learning, reinforcement learning, research, and software engineering opportunities.</p>
         <div class="contact-actions">
           <a class="btn btn-light" href="mailto:alopezcordero19@gmail.com">alopezcordero19@gmail.com</a>
-          <a class="btn btn-outline-light" href="tel:+19566765679">(956) 676-5679</a>
         </div>
         <div class="social-row">
           <a href="https://github.com/alopezccordero" target="_blank" rel="noreferrer">GitHub ↗</a>
