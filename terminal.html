@@ -48,7 +48,7 @@ a { color:var(--hi); } a:focus-visible, button:focus-visible { outline:1px dashe
 </style>
 </head>
 <body>
-<nav class="themes" aria-label="Switch view"><a href="index.html">Executive</a><a href="night-vision.html">Night vision</a><a href="terminal.html" aria-current="page">Terminal</a></nav>
+<nav class="themes" aria-label="Switch view"><a href="index.html">Formal</a><a href="night-vision.html">Night vision</a><a href="terminal.html" aria-current="page">Terminal</a></nav>
 <main id="screen" aria-live="polite">
   <div id="out"></div>
   <div class="line"><label for="input" class="prompt">guest@alopez:~$</label><input id="input" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go" autofocus /></div>
@@ -107,7 +107,7 @@ const cmds = {
     return `opening resume… <a href="${P.links.resume}" target="_blank" rel="noreferrer">click here</a> if it was blocked.`;
   },
   gui: () => { location.href = 'index.html'; return 'opening main view…'; },
-  executive: () => cmds.gui(),
+  formal: () => cmds.gui(),
   nightvision: () => { location.href = 'night-vision.html'; return 'opening night vision view…'; },
   exit: () => cmds.gui(),
   sudo: () => `nice try. permission denied.`,
