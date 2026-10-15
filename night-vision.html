@@ -111,7 +111,7 @@ document.getElementById('bar').innerHTML = `<span class="mono">NV-1 · ${P.locat
 
 document.getElementById('app').innerHTML = `
 <header class="hero">
-  ${box('person', 'person', `<h1>${P.first}<br>${P.last}</h1><p class="lede">${P.summary}</p><a class="btn" href="#work">See the work</a>${ext(P.links.resume, 'Resume', 'btn')}`, '', 0)}
+  ${box('whoami', 'whoami', `<h1>${P.first}<br>${P.last}</h1><p class="lede">${P.summary}</p><a class="btn" href="#work">See the work</a>${ext(P.links.resume, 'Resume', 'btn')}`, '', 0)}
   ${P.photo ? box('person', 'person', `<img src="${ROOT}${P.photo}" alt="${P.name}"><div class="face" aria-hidden="true"><span>[FACE ${conf(P.name)}]</span></div>`, 'shot', 1) : ''}
 </header>
 ${box('metric', 'stats', `<div class="stats">${P.stats.map(s => `<div><b>${s.value}</b><span>${s.label}</span></div>`).join('')}</div>`)}
