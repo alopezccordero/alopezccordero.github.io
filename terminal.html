@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Alejandro Lopez — shell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+:root { --bg:#1c1408; --fg:#ffb347; --dim:#a8762f; --hi:#ffe2b0; --sel:#3a2a10; }
+* { box-sizing:border-box; }
+html,body { margin:0; height:100%; background:var(--bg); }
+body { font:15px/1.6 "IBM Plex Mono", monospace; color:var(--fg); }
+body::after { content:""; position:fixed; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px); }
+#screen { max-width:860px; margin:0 auto; padding:28px 20px 120px; text-shadow:0 0 6px rgba(255,179,71,.35); }
+pre { margin:0; font:inherit; white-space:pre-wrap; }
+.dim { color:var(--dim); } .hi { color:var(--hi); font-weight:600; }
+a { color:var(--hi); } a:focus-visible, button:focus-visible { outline:1px dashed var(--hi); outline-offset:2px; }
+.line { display:flex; gap:.6ch; }
+.prompt { color:var(--dim); white-space:nowrap; }
+#input { flex:1; background:none; border:0; color:var(--hi); font:inherit; caret-color:var(--fg); outline:none; padding:0; text-shadow:inherit; }
+.chips { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 22px; }
+.chips button { background:none; border:1px solid var(--dim); color:var(--fg); font:inherit; font-size:13px; padding:2px 10px; cursor:pointer; }
+.chips button:hover { background:var(--sel); color:var(--hi); }
+.block { margin:4px 0 18px; }
+.view-switch { position:fixed; top:14px; right:14px; z-index:2; background:var(--bg); border:1px solid var(--dim); color:var(--fg); font:13px "IBM Plex Mono", monospace; padding:4px 12px; text-decoration:none; }
+.view-switch:hover { background:var(--sel); color:var(--hi); }
+.banner { color:var(--fg); font-size:11px; line-height:1.15; }
+@media (max-width:600px){ .banner{ font-size:6.5px; } body{ font-size:14px; } }
+@media (prefers-reduced-motion:reduce){ * { animation:none!important; } }
+</style>
+</head>
+<body>
+<a class="view-switch" href="index.html">Switch to classic view</a>
+<main id="screen" aria-live="polite">
+  <div id="out"></div>
+  <div class="line"><label for="input" class="prompt">guest@alopez:~$</label><input id="input" autocomplete="off" spellcheck="false" autofocus /></div>
+</main>
+<script src="data.js"></script>
+<script>
+const P = window.PORTFOLIO, out = document.getElementById('out'), input = document.getElementById('input');
+const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+// A project's link/linkLabel may be a single value or parallel arrays; bare domains get https://.
+const links = p => [].concat(p.link).map((url, i) => [/^(https?:|mailto:)/.test(url) ? url : 'https://' + url, [].concat(p.linkLabel)[i] || url]);
+const banner = String.raw`
+    _    _      _                 _              _
+   / \  | | ___(_) __ _ _ __   __| |_ __ ___    | |    ___  _ __   ___ ____
+  / _ \ | |/ _ \ |/ _' | '_ \ / _' | '__/ _ \   | |   / _ \| '_ \ / _ \_  /
+ / ___ \| |  __/ | (_| | | | | (_| | | | (_) |  | |__| (_) | |_) |  __// /
+/_/   \_\_|\___|/ |\__,_|_| |_|\__,_|_|  \___/   |_____\___/| .__/ \___/___|
+              |__/                                          |_|`;
+
+const cmds = {
+  help: () => `<span class="hi">available commands</span>
+  <b>whoami</b>       about me
+  <b>ls</b>           list selected work      
+  <b>cat</b> &lt;file&gt;   details for one project     <span class="dim">(try: cat amp.md)</span>
+  <b>experience</b>   work history
+  <b>education</b>    degrees, awards, organizations and certificates
+  <b>skills</b>       technical toolkit
+  <b>contact</b>      how to reach me
+  <b>open resume.pdf</b>  open my CV
+  <b>clear</b>        clear the screen
+  <b>gui</b>          switch to the classic website`,
+  about: () => `<span class="hi">${P.name}</span> <span class="dim">— ${P.location}</span>\n\n${P.about.join('\n\n')}\n\n<span class="dim">focus: </span>${P.focus}\n\n<span class="dim">stats:</span> \n${P.stats.map(s =>`  <span class="hi">${s.value.padEnd(9)}</span>${s.label}`).join('\n')}\n\n<span class="dim">status:</span> ${P.status}`,
+  ls: () => P.projects.map(p => `  <span class="hi">${(p.id + '.md').padEnd(12)}</span>${p.title}\n  <span class="dim">${' '.repeat(12)}${p.area}</span>`).join('\n') + `\n  <span class="hi">resume.pdf</span>\n\n<span class="dim">type "cat &lt;file&gt;" for project details, "open resume.pdf" for my CV</span>`,
+  cat: (file) => {
+    if (!file) return `cat: missing file name. Run <b>ls</b> to see files.`;
+    if (file === 'resume.pdf') return `cat: resume.pdf: binary file. Try: <b>open resume.pdf</b>`;
+    // Project files are "<id>.md"; the bare id works too.
+    const p = P.projects.find(x => x.id === file.replace(/\.md$/, ''));
+    if (!p) return `cat: ${esc(file)}: No such file or directory. Run <b>ls</b> to see files.`;
+    return `<span class="hi">${p.title}</span>\n<span class="dim">${p.area} · ${p.year}</span>\n\n${p.desc}\n\n<span class="dim">stack:</span> ${p.tags.join(', ')}` + (p.metrics.length ? `\n<span class="dim">results:</span>\n` + p.metrics.map(m => `  * ${m}`).join('\n') : '') +
+      (p.link ? '\n' + links(p).map(([url, label]) => `<span class="dim">link: </span><a href="${url}" target="_blank" rel="noreferrer">${label}</a>`).join('\n') : p.linkLabel ? `\n<span class="dim">${p.linkLabel}</span>` : '');
+  },
+  experience: () => P.experience.map(e => `<span class="dim">${e.when.padEnd(13)}</span><span class="hi">${e.title}</span>\n${' '.repeat(13)}${e.org}\n${' '.repeat(13)}<span class="dim">${e.desc}</span>`).join('\n\n'),
+  education: () => P.education.map(e => `<span class="dim">${e.when}</span>  <span class="hi">${e.title}</span>, ${e.org} <span class="dim">(${e.note})</span>`).join('\n') +
+    `\n\n<span class="hi">awards</span>\n` + P.awards.map(a => `  * ${a}`).join('\n') + 
+    `\n\n<span class="hi">organizations</span>\n` + P.organizations.map(a => `  * ${a}`).join('\n') +
+    `\n\n<span class="hi">certificates</span>\n` + P.certificates.map(c => `  * <a href="${c.link}" target="_blank" rel="noreferrer">${c.title}</a> <span class="dim">— ${c.issuer}</span>`).join('\n'),
+  skills: () => Object.entries(P.skills).map(([k,v]) => `<span class="dim">${k.padEnd(13)}</span>${v.join('  ')}`).join('\n') + `\n<span class="dim">${'Spoken'.padEnd(13)}</span>${P.spoken.join('  ')}`,
+  contact: () => `<span class="dim">${'email'.padEnd(13)}</span><a href="mailto:${P.email}">${P.email}</a>\n` + P.profiles.map(l => `<span class="dim">${l.label.toLowerCase().padEnd(13)}</span><a href="${l.url}" target="_blank" rel="noreferrer">${l.url.replace(/^https:\/\/(www\.)?/, '')}</a>`).join('\n'),
+  open: (f) => {
+    if (f !== 'resume.pdf') return `open: ${esc(f || '')}: No such file. Try: <b>open resume.pdf</b>`;
+    window.open(P.links.resume, '_blank', 'noreferrer');
+    return `opening resume… <a href="${P.links.resume}" target="_blank" rel="noreferrer">click here</a> if it was blocked.`;
+  },
+  gui: () => { location.href = 'index.html'; return 'opening classic view…'; },
+  exit: () => cmds.gui(),
+  sudo: () => `nice try. permission denied.`,
+  whoami: () => cmds.about(),
+};
+
+function print(html, cls='block') { const d = document.createElement('pre'); d.className = cls; d.innerHTML = html; out.appendChild(d); }
+function run(raw) {
+  const line = raw.trim(); if (!line && raw !== '') return;
+  print(`<span class="prompt">guest@alopez:~$</span> ${esc(line)}`, '');
+  const [c, ...args] = line.split(/\s+/);
+  if (c === 'clear') { out.innerHTML = ''; 
+  print(`<span class="banner">${banner}</span>`, 'block');
+  print(`${P.summary}\n\n<span class="dim">Type a command or click one below. Arrow keys recall history.</span>`);
+  const chips = document.createElement('div'); chips.className = 'chips';
+  ['help','whoami','ls','cat amp.md','cat yolo.md','cat dental.md','experience','education','contact','open resume.pdf'].forEach(c => {
+    const b = document.createElement('button'); b.textContent = c; b.onclick = () => { run(c); input.focus(); }; chips.appendChild(b);
+  });
+  out.appendChild(chips);  
+
+  ;return; }
+  if (!c) return;
+  const f = cmds[c.toLowerCase()];
+  print(f ? f(...args) : `${esc(c)}: command not found. Type <b>help</b>.`);
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+print(`<span class="banner">${banner}</span>`, 'block');
+print(`${P.summary}\n\n<span class="dim">Type a command or click one below. Arrow keys recall history.</span>`);
+const chips = document.createElement('div'); chips.className = 'chips';
+['help','whoami','ls','cat amp.md','cat yolo.md','cat dental.md','experience','education','contact','open resume.pdf'].forEach(c => {
+  const b = document.createElement('button'); b.textContent = c; b.onclick = () => { run(c); input.focus(); }; chips.appendChild(b);
+});
+out.appendChild(chips);
+
+const hist = []; let hi = 0;
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { hist.push(input.value); hi = hist.length; run(input.value); input.value = ''; }
+  else if (e.key === 'ArrowUp' && hi > 0) { input.value = hist[--hi]; e.preventDefault(); }
+  else if (e.key === 'ArrowDown') { input.value = hist[++hi] ?? ''; if (hi > hist.length) hi = hist.length; }
+  else if (e.key === 'Tab') {
+    e.preventDefault();
+    // Complete the command name, or the file name after "cat"/"open".
+    const [c, arg] = input.value.split(/\s+/), files = { cat: P.projects.map(p => p.id + '.md'), open: ['resume.pdf'] }[c];
+    const m = arg === undefined ? Object.keys(cmds).find(k => k.startsWith(c)) : files?.find(f => f.startsWith(arg));
+    if (m) input.value = arg === undefined ? m : `${c} ${m}`;
+  }
+});
+document.addEventListener('click', e => { if (!e.target.closest('a,button') && !getSelection().toString()) input.focus(); });
+</script>
+</body>
+</html>

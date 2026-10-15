@@ -202,6 +202,12 @@ footer { background:#111827; color:#9aa6b5; }
   .footer-inner { flex-direction:column; justify-content:center; gap:8px; text-align:center; }
 }
 
+.view-switch { position:fixed; right:20px; bottom:20px; z-index:200; display:inline-flex; gap:8px; align-items:center; padding:10px 16px; border-radius:999px; background:var(--ink); color:#fff; font-weight:700; font-size:.88rem; box-shadow:var(--shadow); transition:.2s; }
+.view-switch span { font-family:ui-monospace, Consolas, monospace; color:#9fb8cc; }
+.view-switch:hover { background:var(--accent); transform:translateY(-2px); }
+.view-switch:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+.detail-block li .text-link { font-weight:400; }
+
 </style>
 
 </head>
@@ -227,39 +233,23 @@ footer { background:#111827; color:#9aa6b5; }
       <div class="container hero-grid">
         <div class="hero-copy reveal">
           <p class="eyebrow">Computer Science · AI · Reinforcement Learning · Deep Learning</p>
-          <h1>Alejandro<br /><span>Lopez</span></h1>
-          <p class="hero-text">
-            Computer Science student interested in the subjects of reinforcement learning,
-            deep learning and software engineering.
-          </p>
+          <h1 id="hero-name"></h1>
+          <p class="hero-text" id="hero-summary"></p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="#projects">View my work</a>
-            <a class="btn btn-primary" href="https://huggingface.co/datasets/Alopezcordero/Certifications/blob/main/CV-Alejandro_Lopez_Cordero.pdf" rel="noreferrer">Resume ↗</a>
-            <a class="btn btn-secondary" href="https://github.com/alopezccordero" target="_blank" rel="noreferrer">GitHub ↗</a>
+            <a class="btn btn-primary" id="hero-resume" target="_blank" rel="noreferrer">Resume ↗</a>
+            <a class="btn btn-secondary" id="hero-github" target="_blank" rel="noreferrer">GitHub ↗</a>
           </div>
-          <div class="quick-links" aria-label="Professional profiles">
-            <a href="https://huggingface.co/Alopezcordero" target="_blank" rel="noreferrer">Hugging Face</a>
-            <span>•</span>
-            <a href="mailto:alopezcordero19@gmail.com">Email</a>
-            <span>•</span>
-            <span>Brownsville, Texas</span>
-          </div>
+          <div class="quick-links" aria-label="Professional profiles" id="quick-links"></div>
         </div>
 
         <aside class="hero-panel reveal" aria-label="Profile highlights">
-          <div class="status"><span></span> Open to internships & research opportunities</div>
-          <div class="metric-grid">
-            <div class="metric"><strong>14</strong><span>Hugging Face models</span></div>
-            <div class="metric"><strong>14</strong><span>Public GitHub repos</span></div>
-            <div class="metric"><strong>HPC</strong><span>SLURM cluster training</span></div>
-            <div class="metric"><strong>2027</strong><span>Expected graduation</span></div>
-          </div>
+          <div class="status" id="status"><span></span></div>
+          <div class="metric-grid" id="metrics"></div>
           <div class="focus-card">
             <p>Current focus</p>
-            <h2>Solve real-life problems at the intersection of Artificial Intelligence and Software Engineering.</h2>
-            <div class="tags">
-              <span>PPO</span><span>YOLO</span><span>AMP</span><span>MuJoCo</span><span>PyTorch</span><span>Stable-Baselines3</span><span>HPC</span><span>Django</span><span>Agile</span><span>Test-Driven Development</span>
-            </div>
+            <h2 id="focus"></h2>
+            <div class="tags" id="focus-tags"></div>
           </div>
         </aside>
       </div>
@@ -271,28 +261,7 @@ footer { background:#111827; color:#9aa6b5; }
           <p class="eyebrow">01 / About</p>
           <h2>Curious by nature.<br />Driven by difficult problems.</h2>
         </div>
-        <div class="about-copy reveal">
-          <p class="lead">
-            Senior student in the Computer Science program at UTRGV
-            developing a strong foundation in software engineering, machine learning,
-            and reinforcement learning.
-          </p>
-          <p>
-            My interests include deep reinforcement learning, physics-based character control,
-            simulation, AI agents, computer vision and the architecture of systems following 
-            agile methodologies and Test-Driven Development. I enjoy architecting and implementing models for 
-            real-life use by comparing results and documenting reproducible experiments. My technical
-            work is also based on the usage of GPU-accelerated training workflows on the university HPC.
-          </p>
-          <div class="interest-list">
-            <span>Reinforcement Learning</span>
-            <span>Deep Learning</span>
-            <span>AI Agents</span>
-            <span>AI vision</span>
-            <span>Robotics & Simulation</span>
-            <span>Software Engineering</span>
-          </div>
-        </div>
+        <div class="about-copy reveal" id="about-copy"></div>
       </div>
     </section>
 
@@ -303,97 +272,9 @@ footer { background:#111827; color:#9aa6b5; }
             <p class="eyebrow">02 / Selected work</p>
             <h2>Projects.</h2>
           </div>
-          <a class="text-link" href="https://huggingface.co/Alopezcordero" target="_blank" rel="noreferrer">See all models ↗</a>
+          <a class="text-link" id="all-models" target="_blank" rel="noreferrer">See all models ↗</a>
         </div>
-
-        <div class="project-grid">
-          <article class="project-card reveal">
-            <p class="project-label">Reinforcement Learning · Character Control</p>
-            <h3>Adversarial Motion Priors for Humanoid Locomotion</h3>
-            <p>Extended Stable-Baselines3 PPO with a custom Adversarial Motion Priors implementation, including a discriminator neural network, AMP reward integration, and a motion-retargeting pipeline. I processed AMASS motion-capture data and retargeted it to the MuJoCo humanoid skeleton to create expert demonstrations, then trained the policy for more than 50 million environment interactions on GPU clusters.</p>
-            <ul>
-            <li>Eval (10 episodes, deterministic): 971.74 ± 13.51 episode reward.</li>
-            </ul>
-            <div class="tags"><span>PyTorch</span><span>Stable-Baselines3</span><span>PPO</span><span>AMP</span><span>Discriminator Network</span><span>MuJoCo</span><span>AMASS</span><span>SLURM</span></div>
-            <a class="text-link" href="https://huggingface.co/Alopezcordero/AMP-HumanoidDirection-V0" target="_blank" rel="noreferrer">View repository ↗</a>
-          </article>
-          <article class="project-card reveal">
-            <p class="project-label">Deep Learning · Computer vision AI</p>
-            <h3>YOLO-GunRecognizer</h3>
-            <p>
-              A single-class YOLO model (class: "gun") designed for live-monitoring and real-surveillance frames. 
-              Trained on YOLO26s neural network architecture by peforming downsampling techniques, hard-negative integration and inspecting data-leakages.
-              The model was improved by 3.8x and evaluated against UGR and SOHAS benchmark. 
-            </p>
-            <ul>
-            <li>Eval UGR benchmark: P 0.922 R 0.787 mAP50 0.850 mAP50-95 0.637 | R@0.2 0.824 P@0.865
-              real-CCTV-recall improved from 0.149 (baseline) to 0.568
-            </li>
-            <li>Eval SOHAS: P 0.710 R 0.800 mAP50 0.787 mAP50-95 0.654 | R@0.2 0.952 P@0.2 0.400</li>
-            </ul>
-            <div class="tags"><span>Deep Learning</span><span>YOLO</span><span>Pytorch</span><span>Roboflow</span><span>SLURM</span></div>
-            <a class="text-link" href="https://github.com/alopezccordero/YOLO-GunRecognizer-v0" target="_blank" rel="noreferrer">View repository ↗</a>
-          </article>
-          <article class="project-card reveal">
-            <p class="project-label">Machine Learning · Model Selection</p>
-            <h3>ApisTox: Honeybee Toxicity Classification</h3>
-            <p>Developed a machine-learning pipeline to classify pesticides as <strong>toxic or non-toxic to honeybees</strong>. Compared K-Nearest Neighbors, Logistic Regression, and Neural Networks, tested different combinations of dataset columns to identify the most informative feature set, and evaluated multiple hyperparameter combinations to select the strongest model.</p>
-            <ul>
-              <li>Compared Linear Classifier, KNN, Logistic Regression, Gaussian Naive Bayes and Neural Network classifiers.</li>
-              <li>Performed exhaustive search on input columns to find the best-performing feature subset.</li>
-              <li>Tuned model hyperparameters and compared results using classification metrics.</li>
-              <li>Best metric: Neural Network - accuracy: 0.8922 - std: 0.0280</li>
-            </ul>
-            <a class="text-link" href="https://github.com/alopezccordero/ApisTox-Honeybee-Toxicity-Classification" target="_blank" rel="noreferrer">View repository ↗</a>
-          </article>
-
-          <article class="project-card reveal">
-            <p class="project-label">Full-Stack Development · Healthcare</p>
-            <h3>Dental Clinic Records Platform</h3>
-            <p>Designed and developed a full-stack platform that centralizes dental patient records, treatment history, appointments, and clinical documentation. Built secure workflows for managing odontograms and patient images through authenticated cloud storage, along with appointment notifications and record updates, using a modular Django backend designed for real clinic operations. Development followed <strong>Agile methodologies</strong>, <strong>Test-Driven Development (TDD)</strong>, and a <strong>CI/CD pipeline</strong> to ensure reliable, maintainable, and continuously deployable software.</p>
-            <div class="tags"><span>Django</span><span>Python</span><span>Cloudinary</span><span>PostgreSQL</span></div>
-            <a class="text-link" href="https://www.dental-cordero.com/" target="_blank" rel="noreferrer">View software ↗</a>
-
-          </article>
-
-          <article class="project-card reveal">
-            <p class="project-label">Reinforcement Learning · Simulation</p>
-            <h3>Emergency Department Simulator</h3>
-            <p>Developed a custom Gymnasium-compatible reinforcement-learning environment that models dynamic emergency-department operations, including patient arrivals, changing acuity, deterioration, waiting times, room availability, staffing constraints, treatment, and discharge. Integrated action masking and configurable reward components so PPO agents can learn patient-placement and resource-allocation strategies while balancing throughput, delays, and patient outcomes.</p>
-            <div class="tags"><span>Python</span><span>Gymnasium</span><span>PPO</span><span>Healthcare</span></div>
-            <a class="text-link" href="https://github.com/alopezccordero/ed-simulation" target="_blank" rel="noreferrer">View repository ↗</a>
-          </article>
-
-          <article class="project-card reveal">
-            <p class="project-label">Deep RL · Computer Vision</p>
-            <h3>VizDoom Health Gathering</h3>
-            <p>A PPO agent trained in a first-person visual environment to navigate, gather health, and survive using image observations.</p>
-            <ul>
-              <li>mean_reward on doom_health_gathering_supreme: 13.01 +/- 6.15</li>
-            </ul>
-            <div class="tags"><span>PPO</span><span>VizDoom</span><span>CNN</span><span>PyTorch</span></div>
-            <a class="text-link" href="https://huggingface.co/Alopezcordero/rl_course_vizdoom_health_gathering_supreme" target="_blank" rel="noreferrer">View model ↗</a>
-          </article>
-
-          <article class="project-card reveal">
-            <p class="project-label">Multi-Agent RL</p>
-            <h3>SoccerTwos POCA</h3>
-            <p>A cooperative multi-agent soccer policy trained with Unity ML-Agents and POCA, exploring coordination and competitive behavior.
-            </p>
-            <ul>
-              <li>Metrics: 50M timesteps</li>
-            </ul>
-            <div class="tags"><span>Unity</span><span>ML-Agents</span><span>POCA</span><span>Self-Play</span></div>
-            <a class="text-link" href="https://huggingface.co/Alopezcordero/poca-SoccerTwos" target="_blank" rel="noreferrer">View model ↗</a>
-          </article>
-
-          <article class="project-card reveal">
-            <p class="project-label">Technical Infrastructure</p>
-            <h3>HPC Cluster Workflows</h3>
-            <p>Used university GPU clusters to run and monitor long reinforcement-learning experiments with SLURM, Linux, SSH, Conda, TensorBoard, checkpoints, and remote logs on NVIDIA A30, L40, and A100 GPUs.</p>
-            <div class="tags"><span>SLURM</span><span>Linux</span><span>SSH</span><span>CUDA</span><span>TensorBoard</span></div>
-          </article>
-        </div>
+        <div class="project-grid" id="project-grid"></div>
       </div>
     </section>
 
@@ -403,32 +284,7 @@ footer { background:#111827; color:#9aa6b5; }
           <p class="eyebrow">03 / Experience</p>
           <h2>Professional experience</h2>
         </div>
-        <div class="timeline">
-          <article class="timeline-item reveal">
-            <div class="timeline-date">2023 — Present</div>
-            <div>
-              <h3>Patient Access Representative II</h3>
-              <p class="org">Healthcare · Brownsville, Texas</p>
-              <p>Support patients in a fast-paced hospital environment, maintain accurate records, communicate with insurance companies, assist with liability collection, and collaborate with nursing staff to resolve time-sensitive issues.</p>
-            </div>
-          </article>
-          <article class="timeline-item reveal">
-            <div class="timeline-date">2022 — 2023</div>
-            <div>
-              <h3>Data Entry Specialist</h3>
-              <p class="org">Clínica Odontológica Cordero · Nicaragua</p>
-              <p>Organized and maintained dental records, invoices, medical histories, and appointment information while working closely with clinical staff to improve record accessibility and patient communication.</p>
-            </div>
-          </article>
-          <article class="timeline-item reveal">
-            <div class="timeline-date">2020 — 2023</div>
-            <div>
-              <h3>Data Entry Specialist</h3>
-              <p class="org">Cemcor Comercial · Nicaragua</p>
-              <p>Maintained invoices, payments, and expense records; verified data quality; resolved discrepancies; and prepared reliable information for administrative decision-making.</p>
-            </div>
-          </article>
-        </div>
+        <div class="timeline" id="timeline"></div>
       </div>
     </section>
 
@@ -438,52 +294,7 @@ footer { background:#111827; color:#9aa6b5; }
           <p class="eyebrow">04 / Education</p>
           <h2>Education, awards & skills</h2>
         </div>
-        <div class="education-content">
-          <article class="education-card reveal">
-            <p class="date">Expected 2027</p>
-            <h3>Bachelor of Science in Computer Science</h3>
-            <p>University of Texas Rio Grande Valley</p>
-          </article>
-          <article class="education-card reveal">
-            <p class="date">2025</p>
-            <h3>Associate Degree in Computer Science</h3>
-            <p>Texas Southmost College · 3.5 GPA</p>
-          </article>
-          <div class="details-grid">
-            <div class="detail-block reveal">
-              <h3>Awards</h3>
-              <ul>
-                <li>G.R. and Lidia Ranganath Endowed Scholarship For Engineering and Computer Science (2026-2027)</li>
-                <li>Phi Theta Kappa Honor Society (2025-2027)</li>
-                <li>UTRGV Transfer Scholarship (2025–2027)</li>
-                <li>TSC Foundation Scholarship (2024–2025)</li>
-              </ul>
-            </div>
-            <div class="detail-block reveal">
-              <h3>Technical toolkit</h3>
-              <ul>
-                <li>Python, C++, HTML, CSS, JavaScript, SQL</li>
-                <li>PyTorch, Gymnasium, Stable-Baselines3, MuJoCo</li>
-                <li>Django, PostgreSQL, Git, Linux, Bash, SSH, Conda</li>
-                <li>SLURM, CUDA, TensorBoard, HPC cluster workflows</li>
-              </ul>
-            </div>
-            <div class="detail-block reveal">
-              <h3>Languages</h3>
-              <ul><li>English</li><li>Spanish</li></ul>
-            </div>
-            <div class="detail-block reveal">
-              <h3>Certificates</h3>
-
-              <ul>
-                <li><a class="text-link" style="font-weight: normal" href="https://courses.edx.org/certificates/3b0c2cb8e4ed4d2e9c819f2b59013965?_gl=1*befi9a*_gcl_aw*R0NMLjE3ODU0MjA5ODcuQ2p3S0NBanc3S3ZUQmhBNkVpd0FXbnV0WVE3Xzc3RmRJNkZITURWejFUR0NXZU8wTC03OE8tdmdEbVBqRy1MQW5OeXVpWm5qR2JFaFFCb0MxdkVRQXZEX0J3RQ..*_gcl_dc*R0NMLjE3ODUzNTk0NjQuQ2p3S0NBand5YWJUQmhCRkVpd0FNM21OVU5xVTVmTG1XcGVZeHdPbi1tQ2hjRmpUUUJkY2NsbERPOE1rM0V6ZTAwdmFTaDVJTFNPQ0Job0NYb1VRQXZEX0J3RQ..*_gcl_au*MTMyNDQyNzQxOC4xNzg1MzU3MDc2*_ga*MTg4MDMxOTkyNS4xNzg1MzU3MDc2*_ga_D3KS4KMDT0*czE3ODU0MjA5ODckbzMkZzEkdDE3ODU0MjEwMDYkajQxJGwwJGgw">Introduction to Neural Networks and Deep Learning with Python - HarvardX</a></li>
-                <li><a class="text-link" style="font-weight: normal" href="https://huggingface.co/datasets/Alopezcordero/Certifications/blob/main/Deep-RL.pdf">Reinforcement Learning Course - Hugging Face</a></li>
-                <li><a class="text-link" style="font-weight: normal" href="https://huggingface.co/datasets/Alopezcordero/Certifications/blob/main/Agents-Course.pdf">Agents Course - Hugging Face</a></li>
-                <li><a class="text-link" style="font-weight: normal" href="https://www.credly.com/badges/81e5c584-d0f3-4f69-8a0b-c23f9e86928b/print">Introduction to Cybersecurity — Cisco</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
+        <div class="education-content" id="education-content"></div>
       </div>
     </section>
 
@@ -492,25 +303,78 @@ footer { background:#111827; color:#9aa6b5; }
         <p class="eyebrow">05 / Contact</p>
         <h2>Let’s build something intelligent.</h2>
         <p>I am interested in AI, machine learning, reinforcement learning, research, and software engineering opportunities.</p>
-        <div class="contact-actions">
-          <a class="btn btn-light" href="mailto:alopezcordero19@gmail.com">alopezcordero19@gmail.com</a>
-        </div>
-        <div class="social-row">
-          <a href="https://github.com/alopezccordero" target="_blank" rel="noreferrer">GitHub ↗</a>
-          <a href="https://huggingface.co/Alopezcordero" target="_blank" rel="noreferrer">Hugging Face ↗</a>
-          <a href="https://www.linkedin.com/in/alejandro-lopez-cordero-6a9082363" target="_blank" rel="noreferrer">LinkedIn↗</a>
-
-        </div>
+        <div class="contact-actions" id="contact-actions"></div>
+        <div class="social-row" id="social-row"></div>
       </div>
     </section>
   </main>
 
+  <a class="view-switch" href="terminal.html" aria-label="Switch to terminal view"><span aria-hidden="true">&gt;_</span> Terminal view</a>
+
   <footer>
     <div class="container footer-inner">
-      <p>© <span id="year"></span> Alejandro Lopez</p>
+      <p>© <span id="year"></span> <span id="footer-name"></span></p>
       <a href="#top">Back to top ↑</a>
     </div>
   </footer>
+  <script src="data.js"></script>
+  <script>
+// Render every content section from data.js before the reveal observer runs.
+const P = window.PORTFOLIO;
+const $ = id => document.getElementById(id);
+const ext = (url, text, cls = 'text-link') => `<a class="${cls}" href="${url}" target="_blank" rel="noreferrer">${text}</a>`;
+// A project's link/linkLabel may be a single value or parallel arrays; bare domains get https://.
+const links = p => [].concat(p.link).map((url, i) => [/^(https?:|mailto:)/.test(url) ? url : 'https://' + url, [].concat(p.linkLabel)[i] || url]);
+const list = items => `<ul>${items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+
+$('hero-name').innerHTML = `${P.first}<br /><span>${P.last}</span>`;
+$('hero-summary').textContent = P.summary;
+$('hero-resume').href = P.links.resume;
+$('hero-github').href = P.links.github;
+$('quick-links').innerHTML = [ext(P.links.huggingface, 'Hugging Face', ''), ext(P.links.linkedin, 'LinkedIn', ''), `<a href="mailto:${P.email}">Email</a>`, `<span>${P.location}</span>`].join('<span>•</span>');
+$('status').append(' ' + P.status);
+$('metrics').innerHTML = P.stats.map(s => `<div class="metric"><strong>${s.value}</strong><span>${s.label}</span></div>`).join('');
+$('focus').textContent = P.focus;
+$('focus-tags').innerHTML = P.focusTags.map(t => `<span>${t}</span>`).join('');
+
+$('about-copy').innerHTML = `<p class="lead">${P.about[0]}</p>${P.about.slice(1).map(a => `<p>${a}</p>`).join('')}
+  <div class="interest-list">${P.interests.map(i => `<span>${i}</span>`).join('')}</div>`;
+
+$('all-models').href = P.links.huggingface;
+$('project-grid').innerHTML = P.projects.map(p => `
+  <article class="project-card reveal">
+    <p class="project-label">${p.area}</p>
+    <h3>${p.title}</h3>
+    <p>${p.desc}</p>
+    ${p.metrics.length ? list(p.metrics) : ''}
+    <div class="tags">${p.tags.map(t => `<span>${t}</span>`).join('')}</div>
+    ${p.link ? links(p).map(([url, label]) => ext(url, `${label} ↗`)).join('<span style="margin:0 10px"></span>') : p.linkLabel ? `<span class="text-link muted">${p.linkLabel}</span>` : ''}
+  </article>`).join('');
+
+$('timeline').innerHTML = P.experience.map(e => `
+  <article class="timeline-item reveal">
+    <div class="timeline-date">${e.when}</div>
+    <div><h3>${e.title}</h3><p class="org">${e.org}</p><p>${e.desc}</p></div>
+  </article>`).join('');
+
+$('education-content').innerHTML = P.education.map(e => `
+  <article class="education-card reveal">
+    <p class="date">${e.note === 'Expected' ? `Expected ${e.when}` : e.when}</p>
+    <h3>${e.title}</h3>
+    <p>${e.org}${e.note === 'Expected' ? '' : ` · ${e.note}`}</p>
+  </article>`).join('') + `
+  <div class="details-grid">
+    <div class="detail-block reveal"><h3>Awards</h3>${list(P.awards)}</div>
+    <div class="detail-block reveal"><h3>Organizations</h3>${list(P.organizations || [])}</div>
+    <div class="detail-block reveal"><h3>Technical toolkit</h3>${list(Object.values(P.skills).map(v => v.join(', ')))}</div>
+    <div class="detail-block reveal"><h3>Languages</h3>${list(P.spoken)}</div>
+    <div class="detail-block reveal" style="grid-column:1 / -1"><h3>Certificates</h3>${list(P.certificates.map(c => `${ext(c.link, c.title)} — ${c.issuer}`))}</div>
+  </div>`;
+
+$('contact-actions').innerHTML = `<a class="btn btn-light" href="mailto:${P.email}">${P.email}</a>`;
+$('social-row').innerHTML = P.profiles.map(l => ext(l.url, `${l.label} ↗`, '')).join('');
+$('footer-name').textContent = P.name;
+  </script>
   <script>
 const toggle = document.querySelector('.nav-toggle');
 const navLinks = document.querySelector('.nav-links');
