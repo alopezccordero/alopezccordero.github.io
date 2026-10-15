@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#020812" />
-<title>Alejandro Lopez</title>
+<title>Flow-generated walker · Alejandro Lopez</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
@@ -49,8 +49,6 @@ h1 { font-weight:600; font-size:clamp(50px, 7.6vw, 108px); line-height:.92; lett
 .shot { padding:0; } .shot img { display:block; width:100%; aspect-ratio:1; object-fit:cover; filter:grayscale(1) contrast(1.3) brightness(1.15); }
 .shot::after { content:""; position:absolute; inset:0; background:var(--tint); mix-blend-mode:multiply; pointer-events:none; }
 .face { position:absolute; left:30.5%; top:18.5%; width:39%; height:47%; border:2px dashed var(--hi); z-index:2; }
-.face::before, .face::after { content:""; position:absolute; left:50%; top:50%; width:16px; height:2px; background:var(--hi); transform:translate(-50%, -50%); }
-.face::after { width:2px; height:16px; }
 .face span { position:absolute; top:-22px; left:-2px; font:11.5px "IBM Plex Mono"; color:var(--hi); white-space:nowrap; }
 .stats { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
 .stats b { display:block; font:600 34px/1.05 "IBM Plex Sans"; letter-spacing:-.02em; color:var(--hi); } .stats span { font-size:14px; color:var(--mut); }
@@ -84,17 +82,22 @@ footer { padding:50px 0 100px; color:var(--mut); font:12.5px "IBM Plex Mono"; }
   body::before { background:radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,.7) 100%); } }
 @media (hover:none){ .xh, .xy { display:none; } body { cursor:auto; } }
 @media (prefers-reduced-motion:reduce){ .scan { display:none; } * { animation:none!important; } }
+/* Animated background: a canvas fixed behind all content; panels go slightly translucent so it reads through. */
+#bg { position:fixed; inset:0; width:100%; height:100%; z-index:-1; pointer-events:none; }
+.det { background:rgba(3,13,30,.62); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }
 </style>
 </head>
 <body>
+<canvas id="bg" aria-hidden="true"></canvas>
 <div class="scan" aria-hidden="true"></div>
 <header class="bar"><div class="in" id="bar"></div></header>
 <div class="xh v" id="xv" aria-hidden="true"></div><div class="xh h" id="xhh" aria-hidden="true"></div><div class="xy" id="xy" aria-hidden="true"></div>
 <div class="wrap" id="app"></div>
 <nav class="themes" aria-label="Switch view"><a href="index.html">Executive</a><a href="night-vision.html" aria-current="page">Night vision</a><a href="terminal.html">Terminal</a></nav>
-<script src="data.js"></script>
+<!-- Bump ?v= whenever data.js changes so browsers fetch the new copy instead of a cached one. -->
+<script src="data.js?v=2"></script>
 <script>
-const P = window.PORTFOLIO, ROOT = ''; // folder that holds the photo, relative to this page
+const P = window.PORTFOLIO, ROOT = ""; // folder that holds the photo; '' once promoted to the root
 const links = p => p.link ? [].concat(p.link).map((url, i) => [/^(https?:|mailto:)/.test(url) ? url : 'https://' + url, [].concat(p.linkLabel)[i] || url]) : [];
 const ext = (url, text, cls = '') => `<a${cls ? ` class="${cls}"` : ''} href="${url}" target="_blank" rel="noreferrer">${text}</a>`;
 const conf = s => (0.9 + ([...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 997, 7) % 90) / 1000).toFixed(2);
@@ -147,6 +150,244 @@ addEventListener('pointermove', e => {
   xy.style.left = e.clientX + 12 + 'px'; xy.style.top = e.clientY + 12 + 'px';
   xy.textContent = `X ${Math.round(e.pageX)}  Y ${Math.round(e.pageY)}`;
 });
+</script>
+<script>const CFG = {"mode": "cycle", "n": 220, "gen": 3.6, "lock": 1.1, "grid": 46, "paths": false};
+
+const TEX = 256, tex = new Float32Array(TEX * TEX);
+(function buildNoise() {
+  const sm = t => t * t * (3 - 2 * t);
+  for (const [f, amp] of [[4, .5], [8, .28], [16, .15], [32, .07]]) {
+    const g = new Float32Array(f * f).map(() => Math.random()), st = TEX / f;
+    for (let y = 0; y < TEX; y++) { const gy = y / st, y0 = gy | 0, fy = sm(gy - y0), r0 = (y0 % f) * f, r1 = ((y0 + 1) % f) * f;
+      for (let x = 0; x < TEX; x++) { const gx = x / st, x0 = gx | 0, fx = sm(gx - x0), xa = x0 % f, xb = (x0 + 1) % f;
+        const top = g[r0 + xa] + (g[r0 + xb] - g[r0 + xa]) * fx, bot = g[r1 + xa] + (g[r1 + xb] - g[r1 + xa]) * fx;
+        tex[y * TEX + x] += amp * (top + (bot - top) * fy); } }
+  }
+})();
+function noise(u, v) {
+  u -= Math.floor(u / TEX) * TEX; v -= Math.floor(v / TEX) * TEX;
+  const x0 = u | 0, y0 = v | 0, fx = u - x0, fy = v - y0, x1 = (x0 + 1) % TEX, y1 = (y0 + 1) % TEX;
+  const a = tex[y0 * TEX + x0], b = tex[y0 * TEX + x1], c = tex[y1 * TEX + x0], d = tex[y1 * TEX + x1], top = a + (b - a) * fx;
+  return top + ((c + (d - c) * fx) - top) * fy;
+}
+const BAYER = [0,32,8,40,2,34,10,42, 48,16,56,24,50,18,58,26, 12,44,4,36,14,46,6,38, 60,28,52,20,62,30,54,22,
+  3,35,11,43,1,33,9,41, 51,19,59,27,49,17,57,25, 15,47,7,39,13,45,5,37, 63,31,55,23,61,29,53,21].map(v => (v + .5) / 64);
+const CELL = 3, FPS = 10, INK = [120, 185, 255];
+const buf = document.createElement('canvas'), bx = buf.getContext('2d');
+let bw = 1, bh = 1, img = null, lastT = -1;
+// Large slow clouds + finer detail, stretched hard so there is clear "paper" between clouds.
+const clouds = (x, y, t) => { const d = t * 1.3; return ((.68 * noise(x * .34 + d, y * .34 + d * .6) + .32 * noise(x * 1.1 - d * .8, y * 1.1 + d * .35)) - .36) * 2.3; };
+function ditherInit(W, H) {
+  bw = Math.max(1, Math.ceil(W / CELL)); bh = Math.max(1, Math.ceil(H / CELL)); buf.width = bw; buf.height = bh;
+  img = bx.createImageData(bw, bh); for (let i = 0; i < img.data.length; i += 4) { img.data[i] = INK[0]; img.data[i + 1] = INK[1]; img.data[i + 2] = INK[2]; }
+  lastT = -1;
+}
+// field(x, y, t) -> value compared against the Bayer threshold; alpha(x, y) -> dot opacity 0-255.
+function ditherDraw(c, W, H, t, force, field, alpha, after) {
+  if (!force && lastT >= 0 && t - lastT < 1 / FPS) return; lastT = t;
+  const d = img.data;
+  for (let y = 0; y < bh; y++) { const rb = (y & 7) << 3, row = y * bw;
+    for (let x = 0; x < bw; x++) d[(row + x) * 4 + 3] = field(x, y, t) > BAYER[rb | (x & 7)] ? alpha(x, y) : 0; }
+  bx.putImageData(img, 0, 0);
+  c.clearRect(0, 0, W, H); c.imageSmoothingEnabled = false; c.drawImage(buf, 0, 0, bw * CELL, bh * CELL);
+  if (after) after(c, W, H, t);
+}
+
+// ---- Pose feed (walkers + detector overlay) with a flow-matching generator ----
+// Flow matching with optimal-transport paths: x_t = (1-t)·x0 + t·x1, x0 ~ N(mu, sg²), x1 ~ body points.
+// The exact marginal velocity for that setup is v(x,t) = Σ w_i (x1_i - x) / (1-t), with posterior
+// weights w_i ∝ exp(-|x - t·x1_i - (1-t)·mu|² / (2((1-t)·sg)²)). Particles integrate this ODE; the
+// arrow grid draws the same field.
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const body = document.createElement('canvas'), bdx = body.getContext('2d', { willReadFrequently: true });
+let lum = null;
+const NAMES = ['NOSE', 'NECK', 'L_SHOULDER', 'L_ELBOW', 'L_WRIST', 'R_SHOULDER', 'R_ELBOW', 'R_WRIST', 'L_HIP', 'L_KNEE', 'L_ANKLE', 'R_HIP', 'R_KNEE', 'R_ANKLE', 'L_TOE', 'R_TOE', 'HEAD'];
+const BONES = [[16, 0], [0, 1], [1, 2], [2, 3], [3, 4], [1, 5], [5, 6], [6, 7], [1, 8], [8, 9], [9, 10], [10, 14], [1, 11], [11, 12], [12, 13], [13, 15], [8, 11]];
+const LABELED = new Set([0, 2, 4, 7, 9, 10, 12, 13]);
+const baseConf = NAMES.map((n, i) => .86 + ((i * 37) % 13) / 100);
+const PEOPLE = [ // main walker is generated by the flow; the distant one just walks
+  { id: 1, gen: true, s: .6, dir: -1, y: .9, start: CFG.mode === 'stream' ? 1.15 : .88, period: 18, tau: 0, state: 'walk', vis: 1, trail: [] },
+  { id: 2, gen: false, s: .3, dir: 1, y: .62, start: -.15, period: 30, tau: 12, state: 'walk', vis: 1, trail: [] },
+];
+let nextId = 3;
+const posX = (P, W) => P.start * W + P.dir * P.tau * (1.3 * W / P.period);
+const offscreen = (P, W) => { const x = posX(P, W); return P.dir > 0 ? x > 1.15 * W : x < -.15 * W; };
+const gauss = () => Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(6.2832 * Math.random());
+
+function pose(P, W, H) {
+  const h = P.s * H, p = P.tau * Math.PI * 2 / 1.15, d = P.dir, x0 = posX(P, W);
+  const thigh = .245 * h, shin = .245 * h, foot = .07 * h, torso = .3 * h, upper = .17 * h, fore = .16 * h;
+  const hip = [x0, P.y * H - (thigh + shin) * .97 - .015 * h * Math.cos(2 * p)];
+  const leg = (ph, off) => { const a = .45 * Math.sin(ph), k = .95 * Math.max(0, Math.sin(ph - 1.25));
+    const hp = [hip[0] + off, hip[1]], kn = [hp[0] + d * Math.sin(a) * thigh, hp[1] + Math.cos(a) * thigh];
+    const an = [kn[0] + d * Math.sin(a - k) * shin, kn[1] + Math.cos(a - k) * shin]; return [hp, kn, an, [an[0] + d * foot, an[1] + .01 * h]]; };
+  const neck = [hip[0] + d * .03 * h, hip[1] - torso], head = [neck[0] + d * .015 * h, neck[1] - .1 * h];
+  const arm = (ph, off) => { const a = -.38 * Math.sin(ph), e = .35 + .25 * Math.max(0, Math.sin(ph));
+    const sh = [neck[0] + off, neck[1] + .03 * h], el = [sh[0] + d * Math.sin(a) * upper, sh[1] + Math.cos(a) * upper];
+    return [sh, el, [el[0] + d * Math.sin(a + e) * fore, el[1] + Math.cos(a + e) * fore]]; };
+  const [lh, lk, la, lt] = leg(p, 0), [rh, rk, ra, rt] = leg(p + Math.PI, -d * .025 * h);
+  const [ls, le, lw] = arm(p + Math.PI, 0), [rs, re, rw] = arm(p, -d * .025 * h);
+  return { h, j: [[head[0] + d * .05 * h, head[1] + .01 * h], neck, ls, le, lw, rs, re, rw, lh, lk, la, rh, rk, ra, lt, rt, head] };
+}
+
+// Target "data" points for the flow: keypoints, points along every bone, and a ring for the head.
+function targetsFor({ h, j }) {
+  const T = j.map(p => [p[0], p[1]]);
+  for (const [a, b] of BONES) { const A = j[a], B = j[b], n = Math.max(1, Math.round(Math.hypot(B[0] - A[0], B[1] - A[1]) / (.03 * h)));
+    for (let k = 1; k < n; k++) T.push([A[0] + (B[0] - A[0]) * k / n, A[1] + (B[1] - A[1]) * k / n]); }
+  for (let k = 0; k < 10; k++) { const a = k / 10 * 6.2832; T.push([j[16][0] + Math.cos(a) * .065 * h, j[16][1] + Math.sin(a) * .065 * h]); }
+  return T;
+}
+function makeField(T, h) { let mx = 0, my = 0; for (const p of T) { mx += p[0]; my += p[1]; } return { T, mu: [mx / T.length, my / T.length], sg: .45 * h, e: new Float64Array(T.length) }; }
+// Exact marginal OT velocity; returns the "displacement to go" (v·(1-t)) and 1/(1-t) separately for stable steps.
+function velocity(x, y, t, F) {
+  const om = Math.max(1 - t, 1e-3), s2 = 2 * (om * F.sg) ** 2, T = F.T, e = F.e; let mx = -Infinity;
+  for (let i = 0; i < T.length; i++) { const cx = t * T[i][0] + om * F.mu[0], cy = t * T[i][1] + om * F.mu[1]; e[i] = -((x - cx) ** 2 + (y - cy) ** 2) / s2; if (e[i] > mx) mx = e[i]; }
+  let sw = 0, dx = 0, dy = 0;
+  for (let i = 0; i < T.length; i++) { const w = Math.exp(e[i] - mx); sw += w; dx += w * (T[i][0] - x); dy += w * (T[i][1] - y); }
+  return [dx / sw, dy / sw, om]; // v = (dx, dy) / om
+}
+
+// Cycle mode: sample noise and solve the ODE up front (K Euler steps), then replay it.
+const K = 32;
+function startGen(P, W, H) {
+  P.tau = 0; P.state = 'gen'; P.vis = 0; P.trail = []; P.id = nextId++;
+  const F = makeField(targetsFor(pose(P, W, H)), P.s * H);
+  F.t = 0; F.parts = Array.from({ length: CFG.n }, () => {
+    let x = F.mu[0] + gauss() * F.sg, y = F.mu[1] + gauss() * F.sg; const tr = [[x, y]];
+    for (let k = 0; k < K; k++) { const [dx, dy, om] = velocity(x, y, k / K, F), f = Math.min(1, (1 / K) / om); x += dx * f; y += dy * f; tr.push([x, y]); }
+    return tr; });
+  P.flow = F;
+}
+const at = (tr, t) => { const u = Math.min(K, t * K), k = Math.min(K - 1, u | 0), f = u - k; return [tr[k][0] + (tr[k + 1][0] - tr[k][0]) * f, tr[k][1] + (tr[k + 1][1] - tr[k][1]) * f]; };
+
+// Stream mode: particles each carry their own t and integrate live toward the moving walker.
+let stream = [];
+function respawn(p, F) { p.t = 0; p.x = F.mu[0] + gauss() * F.sg; p.y = F.mu[1] + gauss() * F.sg; p.tr = []; }
+
+function arrowGrid(c, W, H, F, t, a) {
+  const S = CFG.grid; c.lineWidth = 1;
+  for (let gy = S / 2; gy < H; gy += S) for (let gx = S / 2; gx < W; gx += S) {
+    const d2 = (gx - F.mu[0]) ** 2 + (gy - F.mu[1]) ** 2, fa = Math.exp(-d2 / (2 * (2.8 * F.sg) ** 2)) * a;
+    if (fa < .05) continue;
+    const [dx, dy] = velocity(gx, gy, t, F), m = Math.hypot(dx, dy); if (m < 1e-3) continue;
+    const L = Math.min(S * .42, 5 + m * .08), ux = dx / m, uy = dy / m, ex = gx + ux * L, ey = gy + uy * L;
+    c.strokeStyle = `rgba(169,212,255,${fa * .75})`; c.beginPath(); c.moveTo(gx - ux * L * .3, gy - uy * L * .3); c.lineTo(ex, ey);
+    c.lineTo(ex - (ux * .9 - uy * .45) * 5, ey - (uy * .9 + ux * .45) * 5); c.moveTo(ex, ey); c.lineTo(ex - (ux * .9 + uy * .45) * 5, ey - (uy * .9 - ux * .45) * 5); c.stroke();
+  }
+}
+
+function flowLayer(c, W, H, t, poses) {
+  c.font = '10.5px "IBM Plex Mono", monospace';
+  if (CFG.mode === 'stream') {
+    const F = makeField(targetsFor(poses[0]), PEOPLE[0].s * H), tg = (t * .22) % 1;
+    arrowGrid(c, W, H, F, tg, 1);
+    for (const p of stream) { const a = Math.min(1, p.t * 5) * Math.min(1, (1 - p.t) * 12);
+      p.tr.forEach(([x, y], i) => { c.fillStyle = `rgba(110,180,255,${a * i / p.tr.length * .35})`; c.fillRect(x - 1, y - 1, 2, 2); });
+      c.fillStyle = `rgba(226,241,255,${a * (.45 + .5 * p.t)})`; c.fillRect(p.x - 1.3, p.y - 1.3, 2.6, 2.6); }
+    c.fillStyle = 'rgba(226,241,255,.8)'; c.fillText(`v_θ(x, t=${tg.toFixed(2)})`, F.mu[0] - F.sg * 1.2, F.mu[1] - F.sg * 1.25);
+    return;
+  }
+  for (const P of PEOPLE) { const F = P.flow; if (!F || (P.state !== 'gen' && P.state !== 'lock')) continue;
+    const a = P.state === 'gen' ? 1 : Math.max(0, 1 - P.lockT / CFG.lock), tt = Math.min(F.t, .985);
+    if (CFG.paths) {
+      c.setLineDash([4, 6]); c.strokeStyle = `rgba(169,212,255,${.4 * a * (1 - F.t * .6)})`;
+      [1, 2].forEach(k => { c.beginPath(); c.arc(F.mu[0], F.mu[1], F.sg * k, 0, 7); c.stroke(); });
+      c.fillStyle = `rgba(169,212,255,${.6 * a * (1 - F.t)})`; c.fillText('x₀ ~ N(μ, σ²)', F.mu[0] + F.sg * 1.4, F.mu[1] - F.sg * 1.4);
+      c.strokeStyle = `rgba(110,180,255,${.22 * a})`; c.beginPath();
+      F.parts.forEach((tr, i) => { if (i % 3) return; c.moveTo(tr[0][0], tr[0][1]); c.lineTo(tr[K][0], tr[K][1]); }); c.stroke(); c.setLineDash([]);
+      c.strokeStyle = `rgba(226,241,255,${.45 * a})`; c.beginPath();
+      F.parts.forEach((tr, i) => { if (i % 3) return; const u = Math.min(K, F.t * K); c.moveTo(tr[0][0], tr[0][1]); for (let k = 1; k <= u; k++) c.lineTo(tr[k][0], tr[k][1]); }); c.stroke();
+    }
+    arrowGrid(c, W, H, F, tt, a * (1 - Math.max(0, F.t - .85) / .15 * .6));
+    F.parts.forEach(tr => { const [x, y] = at(tr, F.t); c.fillStyle = `rgba(226,241,255,${a * (.55 + .4 * F.t)})`; c.fillRect(x - 1.3, y - 1.3, 2.6, 2.6); });
+    c.fillStyle = `rgba(226,241,255,${.85 * a})`;
+    c.fillText(`FLOW MATCHING · t=${F.t.toFixed(2)} · v_θ(x,t)`, F.mu[0] - F.sg * 1.3, F.mu[1] - F.sg * 1.55);
+  }
+}
+
+function paintBodies(poses) {
+  bdx.clearRect(0, 0, bw, bh); bdx.lineCap = 'round';
+  poses.forEach(({ h, j }, k) => { const v = PEOPLE[k].vis; if (v < .01) return; bdx.globalAlpha = v;
+    const s = 1 / CELL, L = (a, b, w, al) => { bdx.strokeStyle = `rgba(255,255,255,${al})`; bdx.lineWidth = w * s; bdx.beginPath(); bdx.moveTo(a[0] * s, a[1] * s); bdx.lineTo(b[0] * s, b[1] * s); bdx.stroke(); };
+    L(j[11], j[12], .085 * h, .5); L(j[12], j[13], .07 * h, .5); L(j[13], j[15], .045 * h, .5); L(j[5], j[6], .06 * h, .5); L(j[6], j[7], .05 * h, .5);
+    L(j[1], [(j[8][0] + j[11][0]) / 2, j[8][1]], .13 * h, .95); L(j[8], j[9], .09 * h, .95); L(j[9], j[10], .075 * h, .95); L(j[10], j[14], .05 * h, .95);
+    L(j[2], j[3], .065 * h, 1); L(j[3], j[4], .055 * h, 1);
+    bdx.fillStyle = '#fff'; bdx.beginPath(); bdx.arc(j[16][0] * s, j[16][1] * s, .068 * h * s, 0, 7); bdx.fill(); });
+  bdx.globalAlpha = 1; lum = bdx.getImageData(0, 0, bw, bh).data;
+}
+
+function overlay(c, poses) {
+  c.font = '10.5px "IBM Plex Mono", monospace'; c.lineCap = 'round';
+  poses.forEach(({ h, j }, k) => {
+    const P = PEOPLE[k]; if (P.state === 'gen') return;
+    const ov = P.state === 'lock' ? Math.min(1, P.lockT / .35) : 1, jit = () => (Math.random() - .5) * 2.4, J = j.map(([x, y]) => [x + jit(), y + jit()]), big = P.s > .45;
+    c.globalAlpha = ov;
+    c.strokeStyle = 'rgba(169,212,255,.75)'; c.lineWidth = big ? 1.6 : 1.1; c.beginPath(); for (const [a, b] of BONES) { c.moveTo(J[a][0], J[a][1]); c.lineTo(J[b][0], J[b][1]); } c.stroke();
+    J.forEach(([x, y], i) => { c.fillStyle = 'rgba(2,8,18,.85)'; c.strokeStyle = 'rgba(226,241,255,.95)'; c.lineWidth = 1.3; c.beginPath(); c.arc(x, y, big ? 4 : 2.6, 0, 7); c.fill(); c.stroke();
+      if (big && LABELED.has(i) && P.state === 'walk') { c.fillStyle = 'rgba(226,241,255,.85)'; c.fillText(`${NAMES[i]} ${Math.min(.99, baseConf[i] + (Math.random() - .5) * .02).toFixed(2)}`, x + 8, y - 6); } });
+    const xs = J.map(p => p[0]), ys = J.map(p => p[1]), pad = .06 * h, x1 = Math.min(...xs) - pad, y1 = Math.min(...ys) - pad * 1.6, x2 = Math.max(...xs) + pad, y2 = Math.max(...ys) + pad * .6, kk = Math.min(18, (x2 - x1) / 4);
+    c.strokeStyle = 'rgba(169,212,255,.9)'; c.lineWidth = 1.4; c.beginPath();
+    [[x1, y1, 1, 1], [x2, y1, -1, 1], [x1, y2, 1, -1], [x2, y2, -1, -1]].forEach(([x, y, sx, sy]) => { c.moveTo(x + sx * kk, y); c.lineTo(x, y); c.lineTo(x, y + sy * kk); }); c.stroke();
+    c.setLineDash([3, 5]); c.strokeStyle = 'rgba(169,212,255,.35)'; c.strokeRect(x1, y1, x2 - x1, y2 - y1); c.setLineDash([]);
+    c.fillStyle = 'rgba(226,241,255,.95)'; c.fillText(`[PERSON ${(.95 + Math.random() * .03).toFixed(2)} · ID ${String(P.id).padStart(2, '0')}${P.state === 'lock' ? ' · NEW' : ''}]`, x1, y1 - 6);
+    if (big && P.state === 'walk') { P.trail.push([J[10][0], J[10][1]], [J[4][0], J[4][1]]); if (P.trail.length > 44) P.trail.splice(0, 2);
+      P.trail.forEach(([x, y], i) => { c.fillStyle = `rgba(110,180,255,${i / P.trail.length * .6})`; c.fillRect(x - 1.5, y - 1.5, 3, 3); }); }
+    c.globalAlpha = 1;
+  });
+}
+
+function hud(c, W, H) {
+  const g = PEOPLE.find(P => P.state === 'gen');
+  c.font = '10.5px "IBM Plex Mono", monospace'; c.fillStyle = 'rgba(169,212,255,.75)';
+  c.fillText(g ? `FLOW MATCHING · ODE STEP ${Math.min(K, Math.floor(g.flow.t * K))}/${K} · ${CFG.n} SAMPLES` :
+    CFG.mode === 'stream' ? `FLOW MATCHING · ${stream.length} SAMPLES IN FLIGHT · POSE · 17 KEYPOINTS` : `POSE · 17 KEYPOINTS · ${PEOPLE.length} TRACKS`, 18, H - 18);
+}
+
+function update(dt, W, H, poses) {
+  for (const P of PEOPLE) {
+    if (P.state === 'walk') { P.tau += dt; P.vis = 1; if (offscreen(P, W)) { if (P.gen && CFG.mode === 'cycle') startGen(P, W, H); else { P.tau = 0; P.trail = []; if (P.gen) P.id = nextId++; } } }
+    else if (P.state === 'gen') { P.flow.t = Math.min(1, P.flow.t + dt / CFG.gen); const u = Math.max(0, (P.flow.t - .78) / .22); P.vis = u * u * (3 - 2 * u);
+      if (P.flow.t >= 1) { P.state = 'lock'; P.lockT = 0; } }
+    else if (P.state === 'lock') { P.lockT += dt; P.vis = 1; if (P.lockT > CFG.lock) P.state = 'walk'; }
+  }
+  if (CFG.mode === 'stream') {
+    const F = makeField(targetsFor(poses[0]), PEOPLE[0].s * H), tdt = dt / CFG.flowDur;
+    if (stream.length !== CFG.n) { stream = Array.from({ length: CFG.n }, () => { const p = {}; respawn(p, F); p.t = Math.random() * .95; return p; }); }
+    for (const p of stream) { const [dx, dy, om] = velocity(p.x, p.y, p.t, F), f = Math.min(1, tdt / om);
+      p.tr.push([p.x, p.y]); if (p.tr.length > 7) p.tr.shift(); p.x += dx * f; p.y += dy * f; p.t += tdt; if (p.t >= 1) respawn(p, F); }
+  }
+}
+
+let prevT = null;
+function bgInit(W, H) {
+  ditherInit(W, H); body.width = bw; body.height = bh; prevT = null; stream = [];
+  const M = PEOPLE[0];
+  if (CFG.mode === 'cycle' && !reduceMotion) startGen(M, W, H);
+  else { M.state = 'walk'; M.tau = Math.abs(M.start - .74) * M.period / 1.3; }
+}
+function bgDraw(c, W, H, t, force) {
+  if (!force && prevT !== null && t - prevT < 1 / 20) return;
+  const dt = prevT === null ? 0 : Math.min(.1, t - prevT); prevT = t;
+  let poses = PEOPLE.map(P => pose(P, W, H));
+  update(dt, W, H, poses); poses = PEOPLE.map(P => pose(P, W, H));
+  paintBodies(poses);
+  ditherDraw(c, W, H, t, true,
+    (x, y, t) => { const b = lum[(y * bw + x) * 4 + 3] / 255; return b > .02 ? b * 1.1 : Math.max(0, clouds(x, y, t) * .5 - .12); },
+    (x, y) => lum[(y * bw + x) * 4 + 3] > 20 ? 175 : 70,
+    (c, W, H, t) => { flowLayer(c, W, H, t, poses); overlay(c, poses); hud(c, W, H); });
+}
+
+
+(function () {
+  const cv = document.getElementById('bg'), c = cv.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1);
+  let W, H;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function size() { W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; c.setTransform(dpr, 0, 0, dpr, 0, 0); bgInit(W, H); bgDraw(c, W, H, performance.now() / 1000, true); }
+  addEventListener('resize', size); size();
+  function loop(now) { bgDraw(c, W, H, now / 1000, false); requestAnimationFrame(loop); }
+  if (!reduce) requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>

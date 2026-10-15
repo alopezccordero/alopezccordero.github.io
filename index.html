@@ -78,7 +78,8 @@ footer { color:var(--mut); font-size:14.5px; padding:26px 0 80px; display:flex; 
 <header class="top"><div class="wrap" id="top"></div></header>
 <main class="wrap" id="app"></main>
 <nav class="themes" aria-label="Switch view"><a href="index.html" aria-current="page">Executive</a><a href="night-vision.html">Night vision</a><a href="terminal.html">Terminal</a></nav>
-<script src="data.js"></script>
+<!-- Bump ?v= whenever data.js changes so browsers fetch the new copy instead of a cached one. -->
+<script src="data.js?v=2"></script>
 <script>
 const P = window.PORTFOLIO, ROOT = ''; // folder holding the photo, relative to this page
 const links = p => p.link ? [].concat(p.link).map((url, i) => [/^(https?:|mailto:)/.test(url) ? url : 'https://' + url, [].concat(p.linkLabel)[i] || url]) : [];
