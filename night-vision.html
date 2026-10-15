@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#020812" />
+<title>Alejandro Lopez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* Variant: night vision, blue phosphor, set in IBM Plex for a formal, technical voice. Classes are told apart by border style (solid, dashed,
+   double, dotted) instead of color, and a scope vignette frames the screen. A toolbar holds a
+   confidence threshold; a crosshair follows the cursor; a scan line sweeps the frame on load. */
+:root { color-scheme:dark; --bg:#020812; --ink:#a9d4ff; --hi:#e2f1ff; --mut:#5d8fc2; --dim:#1b3756; --panel:rgba(3,13,30,.84);
+  --glow:0 0 10px rgba(110,180,255,.38); --tint:#3d9bff; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16.5px/1.65 "IBM Plex Sans", system-ui, sans-serif; text-shadow:var(--glow); cursor:crosshair; }
+a, button, input { cursor:pointer; }
+body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:20; background:radial-gradient(circle at 50% 50%, transparent 52%, rgba(0,0,0,.55) 75%, rgba(0,0,0,.92) 100%); }
+body::after { content:""; position:fixed; inset:0; pointer-events:none; z-index:19; opacity:.12; background:repeating-linear-gradient(0deg, #000 0 1px, transparent 1px 2px); }
+h1, h2, h3, .bar { font-family:"IBM Plex Sans", sans-serif; }
+a { color:var(--hi); }
+a:focus-visible, input:focus-visible { outline:2px dashed var(--hi); outline-offset:3px; }
+/* Toolbar: id, confidence threshold, detection count, navigation. Sits above the vignette. */
+.bar { position:sticky; top:0; z-index:30; background:rgba(2,8,18,.92); border-bottom:1px solid var(--dim); backdrop-filter:blur(6px); }
+.bar .in { max-width:1100px; margin:0 auto; padding:12px 24px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; font-weight:500; font-size:15.5px; }
+.mono { font:12.5px "IBM Plex Mono", monospace; color:var(--mut); }
+.ctl { display:flex; align-items:center; gap:10px; font:12.5px "IBM Plex Mono", monospace; color:var(--mut); }
+.ctl input { accent-color:var(--ink); width:140px; }
+.ctl output { color:var(--hi); min-width:34px; }
+.bar nav { margin-left:auto; display:flex; gap:20px; flex-wrap:wrap; } .bar nav a { text-decoration:none; color:var(--ink); } .bar nav a:hover { color:var(--hi); }
+/* Crosshair + coordinates (pointer devices only). */
+.xh { position:fixed; pointer-events:none; z-index:22; background:rgba(169,212,255,.35); box-shadow:0 0 6px rgba(110,180,255,.6); }
+.xh.v { top:0; bottom:0; width:1px; } .xh.h { left:0; right:0; height:1px; }
+.xy { position:fixed; pointer-events:none; z-index:23; font:10.5px "IBM Plex Mono"; color:var(--hi); background:rgba(2,8,18,.9); border:1px solid var(--dim); padding:1px 6px; }
+.wrap { max-width:1100px; margin:0 auto; padding:0 24px; }
+.det { position:relative; border:2px var(--style, solid) var(--ink); background:var(--panel); padding:22px 24px; margin-top:28px; box-shadow:var(--glow), inset 0 0 20px rgba(110,180,255,.07); transition:opacity .25s, filter .25s; }
+.det > .lbl { position:absolute; z-index:3; top:-12px; left:14px; background:var(--bg); color:var(--hi); font:12.5px/22px "IBM Plex Mono", monospace; padding:0 8px; border:1px solid var(--ink); white-space:nowrap; }
+.person { --style:solid; } .project { --style:dashed; } .metric { --style:double; border-width:4px; } .history { --style:dotted; } .contact { --style:solid; border-width:3px; }
+/* Below the confidence threshold: dimmed and tagged, but still readable on hover/focus. */
+.det.below { opacity:.25; filter:blur(.4px); }
+.det.below > .lbl::after { content:" · FILTERED"; color:var(--mut); }
+.det.below:hover, .det.below:focus-within { opacity:.9; filter:none; }
+.hero { display:grid; grid-template-columns:1fr 320px; gap:30px; align-items:center; padding:20px 0; }
+h1 { font-weight:600; font-size:clamp(50px, 7.6vw, 108px); line-height:.92; letter-spacing:-.035em; margin:0 0 18px; color:var(--hi); }
+.lede { font-size:21px; max-width:38ch; margin:0 0 16px; }
+.btn { display:inline-block; padding:9px 18px; border:2px solid var(--ink); color:var(--hi); text-decoration:none; font:500 15px "IBM Plex Sans"; margin:4px 8px 0 0; }
+.btn:hover { background:var(--ink); color:var(--bg); text-shadow:none; }
+.shot { padding:0; } .shot img { display:block; width:100%; aspect-ratio:1; object-fit:cover; filter:grayscale(1) contrast(1.3) brightness(1.15); }
+.shot::after { content:""; position:absolute; inset:0; background:var(--tint); mix-blend-mode:multiply; pointer-events:none; }
+.face { position:absolute; left:30.5%; top:18.5%; width:39%; height:47%; border:2px dashed var(--hi); z-index:2; }
+.face::before, .face::after { content:""; position:absolute; left:50%; top:50%; width:16px; height:2px; background:var(--hi); transform:translate(-50%, -50%); }
+.face::after { width:2px; height:16px; }
+.face span { position:absolute; top:-22px; left:-2px; font:11.5px "IBM Plex Mono"; color:var(--hi); white-space:nowrap; }
+.stats { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
+.stats b { display:block; font:600 34px/1.05 "IBM Plex Sans"; letter-spacing:-.02em; color:var(--hi); } .stats span { font-size:14px; color:var(--mut); }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.chips span { font:11.5px "IBM Plex Mono"; border:1px solid var(--dim); padding:1px 8px; }
+section { padding-top:60px; }
+h2 { font-size:clamp(32px, 4.4vw, 52px); font-weight:600; letter-spacing:-.025em; margin:0; line-height:1; color:var(--hi); }
+.two { display:grid; grid-template-columns:1fr 1fr; gap:0 26px; }
+.det h3 { font-size:22px; font-weight:600; letter-spacing:-.01em; margin:0 0 2px; line-height:1.15; color:var(--hi); }
+.det p { margin:0 0 10px; }
+.mut { color:var(--mut); font-size:14.5px; }
+.res { border:4px double var(--ink); margin:16px 0 10px; padding:10px 14px; position:relative; }
+.res > .lbl { position:absolute; top:-12px; left:14px; background:var(--bg); color:var(--hi); font:14px/22px "IBM Plex Mono"; padding:0 8px; border:1px solid var(--ink); }
+.m { list-style:none; margin:0; padding:0; } .m li { font:13.5px "IBM Plex Mono"; padding:4px 0 4px 18px; position:relative; } .m li::before { content:"▸"; position:absolute; left:0; }
+.pl { display:flex; gap:16px; flex-wrap:wrap; font-weight:600; margin-top:10px; }
+.wide { grid-column:1 / -1; }
+ul.l { margin:0; padding-left:18px; } ul.l li { margin-bottom:6px; }
+.mail { font:600 clamp(22px, 3.4vw, 40px) "IBM Plex Sans"; letter-spacing:-.02em; word-break:break-all; }
+footer { padding:50px 0 100px; color:var(--mut); font:12.5px "IBM Plex Mono"; }
+.themes { position:fixed; right:16px; bottom:16px; z-index:25; display:flex; background:var(--bg); border:2px solid var(--ink); box-shadow:var(--glow); }
+.themes a { padding:7px 12px; font:12.5px "IBM Plex Mono", monospace; color:var(--ink); text-decoration:none; border-left:1px solid var(--dim); }
+.themes a:first-child { border-left:0; }
+.themes a:hover { color:var(--hi); background:rgba(169,212,255,.08); }
+.themes a[aria-current] { background:var(--ink); color:var(--bg); text-shadow:none; }
+/* One load moment (from the original): a scan line sweeps the frame, then the hero boxes settle in. */
+.scan { position:fixed; left:0; right:0; top:0; height:3px; z-index:24; pointer-events:none; background:var(--hi); box-shadow:0 0 18px var(--tint), 0 0 4px var(--hi); animation:scan 1.1s ease-in forwards; }
+@keyframes scan { to { top:100vh; opacity:0; } }
+.hero .det { animation:pop .35s ease-out both; animation-delay:calc(.25s + var(--i, 0) * .12s); }
+@keyframes pop { from { opacity:0; transform:scale(1.04); } }
+@media (max-width:860px){ .hero, .two { grid-template-columns:1fr; } .hero .shot { max-width:320px; order:-1; } .stats { grid-template-columns:1fr 1fr; } .bar nav { margin-left:0; }
+  body::before { background:radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,.7) 100%); } }
+@media (hover:none){ .xh, .xy { display:none; } body { cursor:auto; } }
+@media (prefers-reduced-motion:reduce){ .scan { display:none; } * { animation:none!important; } }
+</style>
+</head>
+<body>
+<div class="scan" aria-hidden="true"></div>
+<header class="bar"><div class="in" id="bar"></div></header>
+<div class="xh v" id="xv" aria-hidden="true"></div><div class="xh h" id="xhh" aria-hidden="true"></div><div class="xy" id="xy" aria-hidden="true"></div>
+<div class="wrap" id="app"></div>
+<nav class="themes" aria-label="Switch view"><a href="index.html">Executive</a><a href="night-vision.html" aria-current="page">Night vision</a><a href="terminal.html">Terminal</a></nav>
+<script src="data.js"></script>
+<script>
+const P = window.PORTFOLIO, ROOT = ''; // folder that holds the photo, relative to this page
+const links = p => p.link ? [].concat(p.link).map((url, i) => [/^(https?:|mailto:)/.test(url) ? url : 'https://' + url, [].concat(p.linkLabel)[i] || url]) : [];
+const ext = (url, text, cls = '') => `<a${cls ? ` class="${cls}"` : ''} href="${url}" target="_blank" rel="noreferrer">${text}</a>`;
+const conf = s => (0.9 + ([...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 997, 7) % 90) / 1000).toFixed(2);
+const box = (cls, label, inner, extra = '', i = 0) => { const c = conf(label + inner.length);
+  return `<div class="det ${cls} ${extra}" data-conf="${c}" style="--i:${i}"><span class="lbl">[${label.toUpperCase()} ${c}]</span>${inner}</div>`; };
+
+document.getElementById('bar').innerHTML = `<span class="mono">NV-1 · ${P.location.toUpperCase()}</span>
+  <label class="ctl">CONF ≥ <input type="range" id="thr" min="0.90" max="0.99" step="0.01" value="0.90" aria-label="Confidence threshold" /><output id="thv">0.90</output></label>
+  <span class="ctl" id="cnt"></span>
+  <nav aria-label="Main"><a href="#work">Work</a><a href="#history">Experience</a><a href="#education">Education</a><a href="#contact">Contact</a>${ext(P.links.resume, 'Resume')}</nav>`;
+
+document.getElementById('app').innerHTML = `
+<header class="hero">
+  ${box('person', 'person', `<h1>${P.first}<br>${P.last}</h1><p class="lede">${P.summary}</p><a class="btn" href="#work">See the work</a>${ext(P.links.resume, 'Resume', 'btn')}`, '', 0)}
+  ${P.photo ? box('person', 'person', `<img src="${ROOT}${P.photo}" alt="${P.name}"><div class="face" aria-hidden="true"><span>[FACE ${conf(P.name)}]</span></div>`, 'shot', 1) : ''}
+</header>
+${box('metric', 'stats', `<div class="stats">${P.stats.map(s => `<div><b>${s.value}</b><span>${s.label}</span></div>`).join('')}</div>`)}
+${box('history', 'focus', `<p style="font:500 20px/1.4 &quot;IBM Plex Sans&quot;;margin:0;color:var(--hi)">${P.focus}</p><div class="chips">${P.focusTags.map(t => `<span>${t}</span>`).join('')}</div><p class="mut" style="margin:10px 0 0">${P.status}</p>`)}
+
+<section id="about"><h2>About</h2><div class="two">${box('person', 'about', P.about.map(a => `<p>${a}</p>`).join(''))}${box('person', 'interests', `<div class="chips" style="margin:0">${P.interests.map(i => `<span>${i}</span>`).join('')}</div>`)}</div></section>
+
+<section id="work"><h2>Work</h2><p class="mut" style="margin:4px 0 0">Dashed = project · double = measured result · raise CONF in the toolbar to filter</p><div class="two">${P.projects.map(p => box('project', 'project', `<h3>${p.title}</h3><p class="mut">${p.area}, ${p.year}</p><p>${p.desc}</p>
+  ${p.metrics.length ? `<div class="res"><span class="lbl">[RESULT]</span><ul class="m">${p.metrics.map(m => `<li>${m}</li>`).join('')}</ul></div>` : ''}
+  <div class="chips">${p.tags.map(t => `<span>${t}</span>`).join('')}</div><div class="pl">${links(p).map(([u, l]) => ext(u, l + ' ↗')).join('') || `<span class="mut">${p.linkLabel || ''}</span>`}</div>`, p.featured ? 'wide' : '')).join('')}</div></section>
+
+<section id="history"><h2>Experience</h2>${box('history', 'experience', P.experience.map(e => `<h3>${e.title}</h3><p class="mut">${e.org} · ${e.when}</p><p>${e.desc}</p>`).join(''))}</section>
+
+<section id="education"><h2>Education</h2><div class="two">
+  ${box('history', 'education', P.education.map(e => `<h3>${e.title}</h3><p class="mut">${e.org} · ${e.when} · ${e.note}</p>`).join('') + `<h3 style="margin-top:14px">Organizations</h3><ul class="l">${(P.organizations || []).map(o => `<li>${o}</li>`).join('')}</ul>`)}
+  ${box('metric', 'awards', `<ul class="l">${P.awards.map(a => `<li>${a}</li>`).join('')}</ul>`)}
+  ${box('project', 'certificates', `<ul class="l">${P.certificates.map(c => `<li>${ext(c.link, c.title)}, ${c.issuer}</li>`).join('')}</ul>`)}
+  ${box('project', 'toolkit', Object.entries(P.skills).map(([k, v]) => `<p><b>${k}:</b> ${v.join(', ')}</p>`).join('') + `<p><b>Spoken:</b> ${P.spoken.join(', ')}</p>`)}</div></section>
+
+<section id="contact"><h2>Contact</h2>${box('contact', 'contact', `<a class="mail" href="mailto:${P.email}">${P.email}</a><div class="pl">${P.profiles.map(l => ext(l.url, l.label + ' ↗')).join('')}</div>`)}</section>
+<footer>${P.name.toUpperCase()} · ${P.location.toUpperCase()} · END OF FEED</footer>`;
+
+// Confidence threshold: dim detections below it and update the count.
+const thr = document.getElementById('thr'), dets = [...document.querySelectorAll('.det[data-conf]')];
+function apply() {
+  const t = +thr.value; document.getElementById('thv').textContent = t.toFixed(2);
+  let kept = 0; dets.forEach(d => { const below = +d.dataset.conf < t; d.classList.toggle('below', below); if (!below) kept++; });
+  document.getElementById('cnt').textContent = `${kept}/${dets.length} DETECTIONS`;
+}
+thr.addEventListener('input', apply); apply();
+
+// Crosshair with page coordinates.
+const xv = document.getElementById('xv'), xh = document.getElementById('xhh'), xy = document.getElementById('xy');
+addEventListener('pointermove', e => {
+  xv.style.left = e.clientX + 'px'; xh.style.top = e.clientY + 'px';
+  xy.style.left = e.clientX + 12 + 'px'; xy.style.top = e.clientY + 12 + 'px';
+  xy.textContent = `X ${Math.round(e.pageX)}  Y ${Math.round(e.pageY)}`;
+});
+</script>
+</body>
+</html>

@@ -24,23 +24,41 @@ a { color:var(--hi); } a:focus-visible, button:focus-visible { outline:1px dashe
 .chips button { background:none; border:1px solid var(--dim); color:var(--fg); font:inherit; font-size:13px; padding:2px 10px; cursor:pointer; }
 .chips button:hover { background:var(--sel); color:var(--hi); }
 .block { margin:4px 0 18px; }
-.view-switch { position:fixed; top:14px; right:14px; z-index:2; background:var(--bg); border:1px solid var(--dim); color:var(--fg); font:13px "IBM Plex Mono", monospace; padding:4px 12px; text-decoration:none; }
-.view-switch:hover { background:var(--sel); color:var(--hi); }
+.themes { position:fixed; top:14px; right:14px; z-index:2; display:flex; background:var(--bg); border:1px solid var(--dim); }
+.themes a { padding:4px 12px; font:13px "IBM Plex Mono", monospace; color:var(--fg); text-decoration:none; border-left:1px solid var(--dim); }
+.themes a:first-child { border-left:0; }
+.themes a:hover { background:var(--sel); color:var(--hi); }
+.themes a[aria-current] { background:var(--fg); color:var(--bg); text-shadow:none; }
+@media (max-width:600px){ .themes { position:static; margin:12px 20px 0; width:fit-content; } }
 .banner { color:var(--fg); font-size:11px; line-height:1.15; }
 @media (max-width:600px){ .banner{ font-size:6.5px; } body{ font-size:14px; } }
+/* Profile photo as seen on the amber CRT: monochrome, tinted, scanlined, with an occasional glitch. */
+.intro { display:flex; gap:22px; align-items:center; }
+.photo { position:relative; width:150px; aspect-ratio:1; flex:none; overflow:hidden; background:#000; border:1px solid var(--dim); box-shadow:0 0 18px rgba(255,179,71,.18); }
+.photo img, .photo .g { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:grayscale(1) contrast(1.45) brightness(1.08) blur(.35px); }
+.photo .g { background:var(--src) center / cover; opacity:0; animation:glitch 4.5s steps(1) infinite; }
+.photo .g1 { clip-path:inset(34% 0 52% 0); }
+.photo .g2 { clip-path:inset(63% 0 25% 0); animation-delay:.12s; }
+.photo::after { content:""; position:absolute; inset:0; z-index:3; background:var(--fg); mix-blend-mode:multiply; }
+.photo::before { content:""; position:absolute; inset:0; z-index:4; pointer-events:none;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.45) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%); }
+@keyframes glitch { 0%, 90%, 100% { opacity:0; transform:none; } 91% { opacity:1; transform:translateX(9px); } 93% { opacity:1; transform:translateX(-6px); } 95% { opacity:1; transform:translateX(3px); } 96% { opacity:0; } }
+@media (max-width:600px){ .intro { flex-direction:column; align-items:flex-start; } .photo { width:120px; } }
 @media (prefers-reduced-motion:reduce){ * { animation:none!important; } }
 </style>
 </head>
 <body>
-<a class="view-switch" href="index.html">Switch to classic view</a>
+<nav class="themes" aria-label="Switch view"><a href="index.html">Executive</a><a href="night-vision.html">Night vision</a><a href="terminal.html" aria-current="page">Terminal</a></nav>
 <main id="screen" aria-live="polite">
   <div id="out"></div>
-  <div class="line"><label for="input" class="prompt">guest@alopez:~$</label><input id="input" autocomplete="off" spellcheck="false" autofocus /></div>
+  <div class="line"><label for="input" class="prompt">guest@alopez:~$</label><input id="input" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go" autofocus /></div>
 </main>
 <script src="data.js"></script>
 <script>
 const P = window.PORTFOLIO, out = document.getElementById('out'), input = document.getElementById('input');
 const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const photo = () => P.photo ? `<span class="photo" style="--src:url('${P.photo}')"><img src="${P.photo}" alt="${P.name}"><i class="g g1"></i><i class="g g2"></i></span>` : '';
+const intro = () => `<div class="intro">${photo()}<div>${P.summary}\n\n<span class="dim">Type a command or click one below. Arrow keys recall history.</span></div></div>`;
 // A project's link/linkLabel may be a single value or parallel arrays; bare domains get https://.
 const links = p => [].concat(p.link).map((url, i) => [/^(https?:|mailto:)/.test(url) ? url : 'https://' + url, [].concat(p.linkLabel)[i] || url]);
 const banner = String.raw`
@@ -62,8 +80,9 @@ const cmds = {
   <b>contact</b>      how to reach me
   <b>open resume.pdf</b>  open my CV
   <b>clear</b>        clear the screen
-  <b>gui</b>          switch to the classic website`,
-  about: () => `<span class="hi">${P.name}</span> <span class="dim">— ${P.location}</span>\n\n${P.about.join('\n\n')}\n\n<span class="dim">focus: </span>${P.focus}\n\n<span class="dim">stats:</span> \n${P.stats.map(s =>`  <span class="hi">${s.value.padEnd(9)}</span>${s.label}`).join('\n')}\n\n<span class="dim">status:</span> ${P.status}`,
+  <b>gui</b>          switch to the main website
+  <b>nightvision</b>  switch to the night vision website`,
+  about: () => photo() + `\n<span class="hi">${P.name}</span> <span class="dim">— ${P.location}</span>\n\n${P.about.join('\n\n')}\n\n<span class="dim">focus: </span>${P.focus}\n\n<span class="dim">stats:</span> \n${P.stats.map(s =>`  <span class="hi">${s.value.padEnd(9)}</span>${s.label}`).join('\n')}\n\n<span class="dim">status:</span> ${P.status}`,
   ls: () => P.projects.map(p => `  <span class="hi">${(p.id + '.md').padEnd(12)}</span>${p.title}\n  <span class="dim">${' '.repeat(12)}${p.area}</span>`).join('\n') + `\n  <span class="hi">resume.pdf</span>\n\n<span class="dim">type "cat &lt;file&gt;" for project details, "open resume.pdf" for my CV</span>`,
   cat: (file) => {
     if (!file) return `cat: missing file name. Run <b>ls</b> to see files.`;
@@ -86,7 +105,9 @@ const cmds = {
     window.open(P.links.resume, '_blank', 'noreferrer');
     return `opening resume… <a href="${P.links.resume}" target="_blank" rel="noreferrer">click here</a> if it was blocked.`;
   },
-  gui: () => { location.href = 'index.html'; return 'opening classic view…'; },
+  gui: () => { location.href = 'index.html'; return 'opening main view…'; },
+  executive: () => cmds.gui(),
+  nightvision: () => { location.href = 'night-vision.html'; return 'opening night vision view…'; },
   exit: () => cmds.gui(),
   sudo: () => `nice try. permission denied.`,
   whoami: () => cmds.about(),
@@ -96,10 +117,11 @@ function print(html, cls='block') { const d = document.createElement('pre'); d.c
 function run(raw) {
   const line = raw.trim(); if (!line && raw !== '') return;
   print(`<span class="prompt">guest@alopez:~$</span> ${esc(line)}`, '');
-  const [c, ...args] = line.split(/\s+/);
+  // Commands and file names are all lowercase; phones often capitalize the first letter.
+  const [c, ...args] = line.toLowerCase().split(/\s+/);
   if (c === 'clear') { out.innerHTML = ''; 
   print(`<span class="banner">${banner}</span>`, 'block');
-  print(`${P.summary}\n\n<span class="dim">Type a command or click one below. Arrow keys recall history.</span>`);
+  print(intro());
   const chips = document.createElement('div'); chips.className = 'chips';
   ['help','whoami','ls','cat amp.md','cat yolo.md','cat dental.md','experience','education','contact','open resume.pdf'].forEach(c => {
     const b = document.createElement('button'); b.textContent = c; b.onclick = () => { run(c); input.focus(); }; chips.appendChild(b);
@@ -108,13 +130,13 @@ function run(raw) {
 
   ;return; }
   if (!c) return;
-  const f = cmds[c.toLowerCase()];
+  const f = cmds[c];
   print(f ? f(...args) : `${esc(c)}: command not found. Type <b>help</b>.`);
   window.scrollTo(0, document.body.scrollHeight);
 }
 
 print(`<span class="banner">${banner}</span>`, 'block');
-print(`${P.summary}\n\n<span class="dim">Type a command or click one below. Arrow keys recall history.</span>`);
+print(intro());
 const chips = document.createElement('div'); chips.className = 'chips';
 ['help','whoami','ls','cat amp.md','cat yolo.md','cat dental.md','experience','education','contact','open resume.pdf'].forEach(c => {
   const b = document.createElement('button'); b.textContent = c; b.onclick = () => { run(c); input.focus(); }; chips.appendChild(b);
@@ -129,7 +151,7 @@ input.addEventListener('keydown', e => {
   else if (e.key === 'Tab') {
     e.preventDefault();
     // Complete the command name, or the file name after "cat"/"open".
-    const [c, arg] = input.value.split(/\s+/), files = { cat: P.projects.map(p => p.id + '.md'), open: ['resume.pdf'] }[c];
+    const [c, arg] = input.value.toLowerCase().split(/\s+/), files = { cat: P.projects.map(p => p.id + '.md'), open: ['resume.pdf'] }[c];
     const m = arg === undefined ? Object.keys(cmds).find(k => k.startsWith(c)) : files?.find(f => f.startsWith(arg));
     if (m) input.value = arg === undefined ? m : `${c} ${m}`;
   }

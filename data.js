@@ -1,12 +1,13 @@
 // Single source of content for the site. index.html (classic view) and
 // terminal.html (terminal view) both render from this file.
 window.PORTFOLIO = {
-  name: "Alejandro Lopez",
+  name: "Alejandro Lopez Cordero",
   first: "Alejandro",
-  last: "Lopez",
+  last: "Lopez Cordero",
   role: "Computer Science student in reinforcement learning, deep learning and software engineering",
   location: "Brownsville, Texas",
   email: "alopezcordero19@gmail.com",
+  photo: "profile-photo.png",
   status: "Open to internships and research opportunities",
   summary:
     "Computer Science student interested in reinforcement learning, deep learning and software engineering.",
