@@ -52,6 +52,12 @@ section > h2 small { display:block; font:400 15px "Source Sans 3", sans-serif; c
 .proj ul { margin:10px 0 12px; padding:0; list-style:none; }
 .proj li { padding-left:18px; position:relative; margin:4px 0; }
 .proj li::before { content:"–"; position:absolute; left:0; color:var(--navy); }
+/* Project media: quiet hairline frames, grey captions. */
+.proj .pm { margin:16px 0 14px; }
+.proj .pm video, .proj .pm-img img { border:1px solid var(--line); }
+.proj .pm-img:hover img { border-color:var(--navy); }
+.proj .pm figcaption { color:var(--mut); font-size:14px; opacity:1; }
+.proj .pm-img:focus-visible { outline:2px solid var(--navy); outline-offset:2px; }
 .proj .lk { display:flex; gap:20px; flex-wrap:wrap; font-weight:600; font-size:15.5px; margin-top:8px; }
 .rows .r { display:grid; grid-template-columns:120px 1fr; gap:20px; padding:0 0 22px; }
 .rows .d { color:var(--mut); font-size:15px; padding-top:3px; }
@@ -79,7 +85,8 @@ footer { color:var(--mut); font-size:14.5px; padding:26px 0 80px; display:flex; 
 <main class="wrap" id="app"></main>
 <nav class="themes" aria-label="Switch view"><a href="index.html" aria-current="page">Formal</a><a href="night-vision.html">Night vision</a><a href="terminal.html">Terminal</a></nav>
 <!-- Bump ?v= whenever data.js changes so browsers fetch the new copy instead of a cached one. -->
-<script src="data.js?v=2"></script>
+<script src="data.js?v=4"></script>
+<script src="media.js?v=3"></script>
 <script>
 const P = window.PORTFOLIO, ROOT = ''; // folder holding the photo, relative to this page
 const links = p => p.link ? [].concat(p.link).map((url, i) => [/^(https?:|mailto:)/.test(url) ? url : 'https://' + url, [].concat(p.linkLabel)[i] || url]) : [];
@@ -105,6 +112,7 @@ document.getElementById('app').innerHTML = `
 <section id="projects"><h2>Projects<small>${P.projects.length} projects in reinforcement learning, computer vision and software engineering.</small></h2><div>
 ${P.projects.map(p => `<article class="proj"><h3>${p.title}</h3><p class="meta">${p.year}, ${p.area.toLowerCase().replace(/\brl\b/g, 'RL')}</p><p>${p.desc}</p>
   ${p.metrics.length ? `<ul>${p.metrics.map(m => `<li>${m}</li>`).join('')}</ul>` : ''}
+  ${PortfolioMedia.html(p, ROOT)}
   <p class="plain" style="margin:0">Built with ${p.tags.join(', ')}.</p>
   ${links(p).length ? `<div class="lk">${links(p).map(([u, l]) => ext(u, l)).join('')}</div>` : ''}</article>`).join('')}</div></section>
 
@@ -123,6 +131,7 @@ ${P.projects.map(p => `<article class="proj"><h3>${p.title}</h3><p class="meta">
 <section id="contact" style="border-bottom:0"><h2>Contact</h2><div><a class="mail" href="mailto:${P.email}">${P.email}</a>
   <div class="cl">${P.profiles.map(l => ext(l.url, l.label)).join('')}</div></div></section>
 <footer><span>© ${new Date().getFullYear()} ${P.name}</span><span>${P.location}</span></footer>`;
+PortfolioMedia.wire();
 </script>
 </body>
 </html>

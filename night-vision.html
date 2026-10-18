@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#020812" />
-<title>Flow-generated walker · Alejandro Lopez</title>
+<title>Alejandro Lopez</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
@@ -61,6 +61,14 @@ h2 { font-size:clamp(32px, 4.4vw, 52px); font-weight:600; letter-spacing:-.025em
 .det p { margin:0 0 10px; }
 .mut { color:var(--mut); font-size:14.5px; }
 .res { border:4px double var(--ink); margin:16px 0 10px; padding:10px 14px; position:relative; }
+/* Project media as a framed sub-feed inside the project box. */
+.feed-m { position:relative; border:1px solid var(--ink); margin:18px 0 12px; padding:12px 12px 8px; box-shadow:var(--glow); }
+.feed-m > .lbl { position:absolute; top:-12px; left:14px; background:var(--bg); color:var(--hi); font:12.5px/22px "IBM Plex Mono", monospace; padding:0 8px; border:1px solid var(--ink); }
+.feed-m .pm { margin:4px 0 0; }
+.feed-m .pm video, .feed-m .pm-img img { border:1px solid var(--dim); }
+.feed-m .pm-img:hover img { border-color:var(--hi); box-shadow:var(--glow); }
+.feed-m .pm figcaption { font:12px/1.4 "IBM Plex Mono", monospace; color:var(--mut); opacity:1; text-shadow:none; }
+.pm-lb p { font-family:"IBM Plex Mono", monospace; color:var(--ink); }
 .res > .lbl { position:absolute; top:-12px; left:14px; background:var(--bg); color:var(--hi); font:14px/22px "IBM Plex Mono"; padding:0 8px; border:1px solid var(--ink); }
 .m { list-style:none; margin:0; padding:0; } .m li { font:13.5px "IBM Plex Mono"; padding:4px 0 4px 18px; position:relative; } .m li::before { content:"▸"; position:absolute; left:0; }
 .pl { display:flex; gap:16px; flex-wrap:wrap; font-weight:600; margin-top:10px; }
@@ -95,7 +103,8 @@ footer { padding:50px 0 100px; color:var(--mut); font:12.5px "IBM Plex Mono"; }
 <div class="wrap" id="app"></div>
 <nav class="themes" aria-label="Switch view"><a href="index.html">Formal</a><a href="night-vision.html" aria-current="page">Night vision</a><a href="terminal.html">Terminal</a></nav>
 <!-- Bump ?v= whenever data.js changes so browsers fetch the new copy instead of a cached one. -->
-<script src="data.js?v=2"></script>
+<script src="data.js?v=4"></script>
+<script src="media.js?v=3"></script>
 <script>
 const P = window.PORTFOLIO, ROOT = ""; // folder that holds the photo; '' once promoted to the root
 const links = p => p.link ? [].concat(p.link).map((url, i) => [/^(https?:|mailto:)/.test(url) ? url : 'https://' + url, [].concat(p.linkLabel)[i] || url]) : [];
@@ -121,6 +130,7 @@ ${box('history', 'focus', `<p style="font:500 20px/1.4 &quot;IBM Plex Sans&quot;
 
 <section id="work"><h2>Work</h2><p class="mut" style="margin:4px 0 0">Dashed = project · double = measured result · raise CONF in the toolbar to filter</p><div class="two">${P.projects.map(p => box('project', 'project', `<h3>${p.title}</h3><p class="mut">${p.area}, ${p.year}</p><p>${p.desc}</p>
   ${p.metrics.length ? `<div class="res"><span class="lbl">[RESULT]</span><ul class="m">${p.metrics.map(m => `<li>${m}</li>`).join('')}</ul></div>` : ''}
+  ${p.media && p.media.length ? `<div class="feed-m"><span class="lbl">[MEDIA · ${p.media.length} ${p.media.some(m => m.type === 'video') ? 'FEED' : 'FRAME'}${p.media.length > 1 ? 'S' : ''}]</span>${PortfolioMedia.html(p, ROOT)}</div>` : ''}
   <div class="chips">${p.tags.map(t => `<span>${t}</span>`).join('')}</div><div class="pl">${links(p).map(([u, l]) => ext(u, l + ' ↗')).join('') || `<span class="mut">${p.linkLabel || ''}</span>`}</div>`, p.featured ? 'wide' : '')).join('')}</div></section>
 
 <section id="history"><h2>Experience</h2>${box('history', 'experience', P.experience.map(e => `<h3>${e.title}</h3><p class="mut">${e.org} · ${e.when}</p><p>${e.desc}</p>`).join(''))}</section>
@@ -150,6 +160,7 @@ addEventListener('pointermove', e => {
   xy.style.left = e.clientX + 12 + 'px'; xy.style.top = e.clientY + 12 + 'px';
   xy.textContent = `X ${Math.round(e.pageX)}  Y ${Math.round(e.pageY)}`;
 });
+PortfolioMedia.wire();
 </script>
 <script>const CFG = {"mode": "cycle", "n": 220, "gen": 3.6, "lock": 1.1, "grid": 46, "paths": false};
 

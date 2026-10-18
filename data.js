@@ -50,6 +50,9 @@ window.PORTFOLIO = {
       tags: ["PyTorch", "Stable-Baselines3", "PPO", "AMP", "Discriminator network", "MuJoCo", "AMASS", "SLURM"],
       link: "https://huggingface.co/Alopezcordero/AMP-HumanoidDirection-V0",
       linkLabel: "Model on Hugging Face",
+      media: [
+        { type: "video", src: "demonstrations/amp.mp4", w: 666, h: 700, caption: "Trained AMP policy: the MuJoCo humanoid walking toward a commanded direction" },
+      ],
       featured: true,
     },
     {
@@ -68,20 +71,13 @@ window.PORTFOLIO = {
       tags: ["Deep learning", "YOLO", "PyTorch", "Roboflow", "SLURM"],
       link: ["https://github.com/alopezccordero/YOLO-GunRecognizer-v0", "gllm-display.erickramirez1212.workers.dev"],
       linkLabel: ["Code on GitHub", "Live model"],
+      media: [
+        { type: "video", src: "demonstrations/yolo-1.mp4", w: 3436, h: 1440, caption: "Live detection on surveillance-style footage" },
+        { type: "video", src: "demonstrations/yolo-3.mp4", w: 1920, h: 1080, caption: "Detection on a second blurry clip" },
+        { type: "video", src: "demonstrations/yolo.mp4", w: 1920, h: 1080, caption: "Detection on small gun"}
+      ],
     },
-    {
-      id: "apistox",
-      title: "ApisTox: Honeybee Toxicity Classification",
-      short: "ApisTox",
-      area: "Machine learning, model selection",
-      year: "2025",
-      desc: "A machine-learning pipeline classifying pesticides as toxic or non-toxic to honeybees. Compared a linear classifier, KNN, logistic regression, Gaussian naive Bayes and neural networks, ran an exhaustive search over input columns for the best feature subset, and tuned hyperparameters to select the strongest model.",
-      metrics: ["Best: neural network, accuracy 0.8922 (std 0.0280)"],
-      headline: { value: "0.892", label: "accuracy, neural network" },
-      tags: ["scikit-learn", "KNN", "Logistic regression", "Naive Bayes", "Neural nets"],
-      link: "https://github.com/alopezccordero/ApisTox-Honeybee-Toxicity-Classification",
-      linkLabel: "Code on GitHub",
-    },
+
     {
       id: "dental",
       title: "Dental Clinic Records Platform",
@@ -89,13 +85,37 @@ window.PORTFOLIO = {
       area: "Full-stack, healthcare",
       year: "2025",
       desc: "A full-stack platform centralizing dental patient records, treatment history, appointments, and clinical documentation. Secure odontogram and patient-image workflows through authenticated cloud storage, appointment notifications, and a modular Django backend for real clinic operations, built with Agile, TDD, and a CI/CD pipeline.",
-      metrics: ["95+ automated tests (pytest, test-driven development) run by GitHub Actions CI/CD on every push, built in agile iterations.",
+      metrics: ["170+ automated tests (pytest, test-driven development) run by GitHub Actions CI/CD on every push, built in agile iterations.",
         "Role-based access, validated file uploads and full audit logging protect sensitive patient data."
       ],
       headline: { value: "Live", label: "in use at a clinic" },
       tags: ["Django", "Python", "PostgreSQL", "Cloudinary"],
       link: "https://www.dental-cordero.com/",
       linkLabel: "Live software",
+      media: [
+        { type: "image", src: "demonstrations/dental-cordero-1.jpg", caption: "Odontogram editor on desktop and the patient view on mobile" },
+        { type: "image", src: "demonstrations/08-odontogram.webp", caption: "Interactive odontogram: per-tooth, per-surface findings" },
+        { type: "image", src: "demonstrations/09-odontogram-export-preview.webp", caption: "Odontogram export preview before downloading the PDF" },
+        { type: "image", src: "demonstrations/09-doctor-odontogram-phone.png", caption: "Odontogram on the doctor's phone", tall: true },
+        { type: "image", src: "demonstrations/05-patient-record.webp", caption: "Patient record with appointment history" },
+        { type: "image", src: "demonstrations/07-calendar.webp", caption: "Appointment calendar" },
+      ],
+    },
+    {
+      id: "soccer",
+      title: "SoccerTwos POCA",
+      short: "SoccerTwos",
+      area: "Multi-agent RL",
+      year: "2025",
+      desc: "A cooperative multi-agent soccer policy trained with Unity ML-Agents and POCA, exploring coordination and competitive behavior.",
+      metrics: ["Trained for 50M timesteps"],
+      headline: { value: "50M", label: "timesteps" },
+      tags: ["Unity", "ML-Agents", "POCA", "Self-play"],
+      link: "https://huggingface.co/Alopezcordero/poca-SoccerTwos",
+      linkLabel: "Model on Hugging Face",
+      media: [
+        { type: "video", src: "demonstrations/soccertwos.mp4", w: 2032, h: 1108, caption: "Two POCA-trained teams playing SoccerTwos in Unity ML-Agents" },
+      ],
     },
     {
       id: "ed",
@@ -110,6 +130,20 @@ window.PORTFOLIO = {
       linkLabel: "Code on GitHub",
     },
     {
+      id: "apistox",
+      title: "ApisTox: Honeybee Toxicity Classification",
+      short: "ApisTox",
+      area: "Machine learning, model selection",
+      year: "2025",
+      desc: "A machine-learning pipeline classifying pesticides as toxic or non-toxic to honeybees. Compared a linear classifier, KNN, logistic regression, Gaussian naive Bayes and neural networks, ran an exhaustive search over input columns for the best feature subset, and tuned hyperparameters to select the strongest model.",
+      metrics: ["Best: neural network, accuracy 0.8922 (std 0.0280)"],
+      headline: { value: "0.892", label: "accuracy, neural network" },
+      tags: ["scikit-learn", "KNN", "Logistic regression", "Naive Bayes", "Neural nets"],
+      link: "https://github.com/alopezccordero/ApisTox-Honeybee-Toxicity-Classification",
+      linkLabel: "Code on GitHub",
+    },
+
+    {
       id: "vizdoom",
       title: "VizDoom Health Gathering",
       short: "VizDoom",
@@ -122,19 +156,7 @@ window.PORTFOLIO = {
       link: "https://huggingface.co/Alopezcordero/rl_course_vizdoom_health_gathering_supreme",
       linkLabel: "Model on Hugging Face",
     },
-    {
-      id: "soccer",
-      title: "SoccerTwos POCA",
-      short: "SoccerTwos",
-      area: "Multi-agent RL",
-      year: "2025",
-      desc: "A cooperative multi-agent soccer policy trained with Unity ML-Agents and POCA, exploring coordination and competitive behavior.",
-      metrics: ["Trained for 50M timesteps"],
-      headline: { value: "50M", label: "timesteps" },
-      tags: ["Unity", "ML-Agents", "POCA", "Self-play"],
-      link: "https://huggingface.co/Alopezcordero/poca-SoccerTwos",
-      linkLabel: "Model on Hugging Face",
-    },
+
     {
       id: "hpc",
       title: "HPC Cluster Workflows",

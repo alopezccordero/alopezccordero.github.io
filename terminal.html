@@ -24,6 +24,13 @@ a { color:var(--hi); } a:focus-visible, button:focus-visible { outline:1px dashe
 .chips button { background:none; border:1px solid var(--dim); color:var(--fg); font:inherit; font-size:13px; padding:2px 10px; cursor:pointer; }
 .chips button:hover { background:var(--sel); color:var(--hi); }
 .block { margin:4px 0 18px; }
+/* Project media printed by cat: narrow column, thin amber frame. */
+pre .pm { max-width:620px; margin:6px 0 2px; gap:8px; white-space:normal; }
+pre .pm video, pre .pm-img img { border:1px solid var(--dim); }
+pre .pm-img:hover img { border-color:var(--fg); }
+pre .pm figcaption { color:var(--dim); font-size:13px; opacity:1; }
+pre .pm-grid { grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); }
+.pm-lb p { font-family:"IBM Plex Mono", monospace; color:var(--hi); }
 .themes { position:fixed; top:14px; right:14px; z-index:2; display:flex; background:var(--bg); border:1px solid var(--dim); }
 .themes a { padding:4px 12px; font:13px "IBM Plex Mono", monospace; color:var(--fg); text-decoration:none; border-left:1px solid var(--dim); }
 .themes a:first-child { border-left:0; }
@@ -54,7 +61,8 @@ a { color:var(--hi); } a:focus-visible, button:focus-visible { outline:1px dashe
   <div class="line"><label for="input" class="prompt">guest@alopez:~$</label><input id="input" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="go" autofocus /></div>
 </main>
 <!-- Bump ?v= whenever data.js changes so browsers fetch the new copy instead of a cached one. -->
-<script src="data.js?v=2"></script>
+<script src="data.js?v=4"></script>
+<script src="media.js?v=3"></script>
 <script>
 const P = window.PORTFOLIO, out = document.getElementById('out'), input = document.getElementById('input');
 const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -80,11 +88,12 @@ const cmds = {
   <b>skills</b>       technical toolkit
   <b>contact</b>      how to reach me
   <b>open resume.pdf</b>  open my CV
+  <b>media</b>        projects with videos and screenshots
   <b>clear</b>        clear the screen
   <b>gui</b>          switch to the main website
   <b>nightvision</b>  switch to the night vision website`,
   about: () => photo() + `\n<span class="hi">${P.name}</span> <span class="dim">— ${P.location}</span>\n\n${P.about.join('\n\n')}\n\n<span class="dim">focus: </span>${P.focus}\n\n<span class="dim">stats:</span> \n${P.stats.map(s =>`  <span class="hi">${s.value.padEnd(9)}</span>${s.label}`).join('\n')}\n\n<span class="dim">status:</span> ${P.status}`,
-  ls: () => P.projects.map(p => `  <span class="hi">${(p.id + '.md').padEnd(12)}</span>${p.title}\n  <span class="dim">${' '.repeat(12)}${p.area}</span>`).join('\n') + `\n  <span class="hi">resume.pdf</span>\n\n<span class="dim">type "cat &lt;file&gt;" for project details, "open resume.pdf" for my CV</span>`,
+  ls: () => P.projects.map(p => `  <span class="hi">${(p.id + '.md').padEnd(12)}</span>${p.title}${p.media && p.media.length ? ' <span class="dim">[media]</span>' : ''}\n  <span class="dim">${' '.repeat(12)}${p.area}</span>`).join('\n') + `\n  <span class="hi">resume.pdf</span>\n\n<span class="dim">type "cat &lt;file&gt;" for project details, "open resume.pdf" for my CV</span>`,
   cat: (file) => {
     if (!file) return `cat: missing file name. Run <b>ls</b> to see files.`;
     if (file === 'resume.pdf') return `cat: resume.pdf: binary file. Try: <b>open resume.pdf</b>`;
@@ -92,7 +101,8 @@ const cmds = {
     const p = P.projects.find(x => x.id === file.replace(/\.md$/, ''));
     if (!p) return `cat: ${esc(file)}: No such file or directory. Run <b>ls</b> to see files.`;
     return `<span class="hi">${p.title}</span>\n<span class="dim">${p.area} · ${p.year}</span>\n\n${p.desc}\n\n<span class="dim">stack:</span> ${p.tags.join(', ')}` + (p.metrics.length ? `\n<span class="dim">results:</span>\n` + p.metrics.map(m => `  * ${m}`).join('\n') : '') +
-      (p.link ? '\n' + links(p).map(([url, label]) => `<span class="dim">link: </span><a href="${url}" target="_blank" rel="noreferrer">${label}</a>`).join('\n') : p.linkLabel ? `\n<span class="dim">${p.linkLabel}</span>` : '');
+      (p.link ? '\n' + links(p).map(([url, label]) => `<span class="dim">link: </span><a href="${url}" target="_blank" rel="noreferrer">${label}</a>`).join('\n') : p.linkLabel ? `\n<span class="dim">${p.linkLabel}</span>` : '') +
+      (p.media && p.media.length ? `\n<span class="dim">media:</span>` + PortfolioMedia.html(p) : '');
   },
   experience: () => P.experience.map(e => `<span class="dim">${e.when.padEnd(13)}</span><span class="hi">${e.title}</span>\n${' '.repeat(13)}${e.org}\n${' '.repeat(13)}<span class="dim">${e.desc}</span>`).join('\n\n'),
   education: () => P.education.map(e => `<span class="dim">${e.when}</span>  <span class="hi">${e.title}</span>, ${e.org} <span class="dim">(${e.note})</span>`).join('\n') +
@@ -110,11 +120,12 @@ const cmds = {
   formal: () => cmds.gui(),
   nightvision: () => { location.href = 'night-vision.html'; return 'opening night vision view…'; },
   exit: () => cmds.gui(),
+  media: () => P.projects.filter(p => p.media && p.media.length).map(p => `  <span class="hi">${(p.id + '.md').padEnd(12)}</span>${p.media.length} ${p.media.every(m => m.type === 'image') ? 'image' : 'item'}${p.media.length > 1 ? 's' : ''}`).join('\n') + `\n\n<span class="dim">type "cat &lt;file&gt;" to see a project's media</span>`,
   sudo: () => `nice try. permission denied.`,
   whoami: () => cmds.about(),
 };
 
-function print(html, cls='block') { const d = document.createElement('pre'); d.className = cls; d.innerHTML = html; out.appendChild(d); }
+function print(html, cls='block') { const d = document.createElement('pre'); d.className = cls; d.innerHTML = html; out.appendChild(d); if (window.PortfolioMedia) PortfolioMedia.wire(d); }
 function run(raw) {
   const line = raw.trim(); if (!line && raw !== '') return;
   print(`<span class="prompt">guest@alopez:~$</span> ${esc(line)}`, '');
