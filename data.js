@@ -171,7 +171,7 @@ window.PORTFOLIO = {
     },
   ],
   experience: [
-    { when: "2023 – now", title: "Patient Access Representative II", org: "Healthcare, Brownsville, Texas", desc: "Support patients in a fast-paced hospital, maintain accurate records, work with insurers on liability collection, and resolve time-sensitive issues with nursing staff." },
+    { when: "2023 – now", title: "Patient Access Representative II", org: "Conifer Health Solutions, Brownsville, Texas", desc: "Support patients in a fast-paced hospital, maintain accurate records, work with insurers on liability collection, and resolve time-sensitive issues with nursing staff." },
     { when: "2022 – 2023", title: "Data Entry Specialist", org: "Clínica Odontológica Cordero, Nicaragua", desc: "Organized dental records, invoices, medical histories, and appointments, improving record accessibility and patient communication." },
     { when: "2020 – 2023", title: "Data Entry Specialist", org: "Cemcor Comercial, Nicaragua", desc: "Maintained invoices, payments, and expense records; verified data quality and resolved discrepancies for administrative decisions." },
   ],
