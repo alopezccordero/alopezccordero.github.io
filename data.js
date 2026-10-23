@@ -176,8 +176,8 @@ window.PORTFOLIO = {
     { when: "2020 – 2023", title: "Data Entry Specialist", org: "Cemcor Comercial, Nicaragua", desc: "Maintained invoices, payments, and expense records; verified data quality and resolved discrepancies for administrative decisions." },
   ],
   education: [
-    { when: "2027", title: "B.S. Computer Science", org: "University of Texas Rio Grande Valley", note: "Expected" },
-    { when: "2025", title: "A.S. Computer Science", org: "Texas Southmost College", note: "3.5 GPA" },
+    { when: "2027", title: "B.S. Computer Science", org: "University of Texas Rio Grande Valley", note: "3.67 GPA" },
+    { when: "2025", title: "A.S. Computer Science", org: "Texas Southmost College", note: "CUM LAUDE - 3.5 GPA" },
   ],
   organizations: [
     "Last Mile Education Fund: Alumni",
