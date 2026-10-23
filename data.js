@@ -173,11 +173,11 @@ window.PORTFOLIO = {
   experience: [
     { when: "2023 – now", title: "Patient Access Representative II", org: "Conifer Health Solutions, Brownsville, Texas", desc: "Support patients in a fast-paced hospital, maintain accurate records, work with insurers on liability collection, and resolve time-sensitive issues with nursing staff." },
     { when: "2022 – 2023", title: "Data Entry Specialist", org: "Clínica Odontológica Cordero, Nicaragua", desc: "Organized dental records, invoices, medical histories, and appointments, improving record accessibility and patient communication." },
-    { when: "2020 – 2023", title: "Data Entry Specialist", org: "Cemcor Comercial, Nicaragua", desc: "Maintained invoices, payments, and expense records; verified data quality and resolved discrepancies for administrative decisions." },
+    { when: "2020 – 2023", title: "Data Entry Specialist", org: "CEMCOR Comercial, Nicaragua", desc: "Maintained invoices, payments, and expense records; verified data quality and resolved discrepancies for administrative decisions." },
   ],
   education: [
     { when: "2027", title: "B.S. Computer Science", org: "University of Texas Rio Grande Valley", note: "3.67 GPA | Expected May 2027" },
-    { when: "2025", title: "A.S. Computer Science", org: "Texas Southmost College", note: "3.51 GPA | Cum Laude" },
+    { when: "2025", title: "A.S. Computer Science", org: "Texas Southmost College", note: "3.55 GPA | Cum Laude" },
   ],
   organizations: [
     "Last Mile Education Fund: Alumni",
@@ -187,7 +187,7 @@ window.PORTFOLIO = {
   awards: [
     "Last Mile Education Award - Lam Research Foundation (Fall 2026)",
     "G.R. and Lidia Ranganath Endowed Scholarship for Engineering and Computer Science (2026–2027)",
-    "Phi Theta Kappa Honor Society (2025–2027)",
+    "Phi Theta Kappa Honor Society Scholarship (2025–2027)",
     "UTRGV President's list (Fall 2025)",
     "UTRGV Transfer Scholarship (2025–2027)",
     "TSC Foundation Scholarship (2024–2025)",
