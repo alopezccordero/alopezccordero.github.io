@@ -177,7 +177,7 @@ window.PORTFOLIO = {
   ],
   education: [
     { when: "2027", title: "B.S. Computer Science", org: "University of Texas Rio Grande Valley", note: "3.67 GPA | Expected May 2027" },
-    { when: "2025", title: "A.S. Computer Science", org: "Texas Southmost College", note: "3.50 GPA | Cum Laude" },
+    { when: "2025", title: "A.S. Computer Science", org: "Texas Southmost College", note: "3.51 GPA | Cum Laude" },
   ],
   organizations: [
     "Last Mile Education Fund: Alumni",
